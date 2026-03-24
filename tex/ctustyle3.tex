@@ -228,6 +228,9 @@
 \_let\_citeborder\_tocborder
 \_let\_refborder\_tocborder
 \_let\_urlborder\_tocborder
+\fnotelinks{\Black}{\Black}
+\_let\_fntborder\_tocborder
+\_let\_fnfborder\_tocborder
 
 %%% Draft
 
@@ -322,14 +325,19 @@
 \_def\.twosidepagetwo{\_null\_vskip0pt plus1fil {\_parindent=0pt \_the\pagetwo\_endgraf}}
 \_def\.onesidepagetwo{\_if&\_the\pagetwo&\_else\.twosidepagetwo\_fi}
 \_let\.printpagetwo=\.twosidepagetwo
-\_addto\makefront{\.printpagetwo \_endgraf\_break} 
+%\_addto\makefront{\.printpagetwo \_endgraf\_break} 
 
 %%% Specification page
 
 \_def\.specifipage{\_if&\_the\specification&\_else
    \_insertoutline{\_mtext{specifi}}
-   \_the\_ea\specification\_space \nextoddpage \_fi}
+   \_the\_ea\specification\_space \vfil\break \_fi}
 \_addto\makefront{\.specifipage}
+
+\_def\.declpage{\_if&\_the\declaration&\_else
+    \_insertoutline{\_mtext{declaration}}
+    \_the\_ea\declaration\_space \_vfil\_break \_fi}
+\_addto\makefront{\.declpage}
 
 %%% Common front page
 
@@ -338,6 +346,10 @@
 
 \_def\.sethsizefront{\_advance\_hsize by-12mm \_divide\_hsize by2 
    \_emergencystretch=2em \_righthyphenmin=2 \_hbadness=5000 \_penalty0 }
+
+%%% ???
+\_def\.sethsizethanks{\_advance\_hsize by-30mm
+\_emergencystretch=2em \_righthyphenmin=2 \_hbadness=5000 \_penalty0 }
 
 \_def\.frontpage [#1/#2]{
    \_hrule height0pt \_vskip0pt plus 1filll
@@ -358,23 +370,28 @@
 
 \_def\.prepbox#1{\_setbox0=\_vsplit #1to0pt \_relax}
 
-\_def\.declpage{
-   \_setbox\.leftbox=\_vbox{\.sethsizefront \_the\thanks}
-   \.prepbox\.leftbox
-   \_setbox\.rightbox=\_vbox{\.sethsizefront \_the\declaration}
-   \.prepbox\.rightbox
-   \_ifvoid\.leftbox \_ifvoid\.rightbox \_let\.declpage=\_relax \_fi\_fi
-   \_ifx\.declpage\_relax \_else
-      \_insertoutline{\_if&\_the\thanks&\_else\_mtext{thanks}\_fi/\_mtext{declaration}}
-      \.frontpage[\_if&\_the\thanks&\_else\_mtext{thanks}\_fi/\_mtext{declaration}]
-   \_fi
+\_def\.setminutes{%
+	\.minutes=\_directlua{tex.sprint(\_the\_time\_pcent 60)}\_relax
+	\.hours=\_directlua{tex.sprint(math.floor(\_the\_time/60))}\_relax
+}
+\_def\.thankspage{
+	\_insertoutline{\_mtext{thanks}}
+	\_hrule height0pt \_vskip0pt plus 1filll
+	\_line{
+		\.bf\_thefontsize[19]
+		\_hss\Blue{\_mtext{thanks}}\_hss
+	}
+	\_nobreak\_medskip
+	\_line{
+		\.sethsizethanks
+		\_vtop to\.frontht{\_hrule width\_hsize height0pt \_firstnoindent\_the\thanks \_vfil}
+	}
 }
 \_addto\makefront{%
    \_footline={\_hss\.ssr\_thefontsize[11]%
       \_ifx\.pgnum\_empty \_ea\_romannumeral\_ea-\_else \_ea\_the \_fi \_pageno\_hss\.drafttext}
-   \.declpage \_vfil\_break
+   \.thankspage \_vfil\_break
 }
-\_def\signature {\_vskip2cm \_indent\.tocdotfill\_null}
 \_def\.tocdotfill{\_leaders\_hbox to.4em{\_hss.\_hss}\_hskip 1em plus1fill\_relax} 
 
 
@@ -921,6 +938,7 @@
   \_raise4pt\_vbox to0pt{\_vss
       \_llap{\_smallbf\_the\_pageno \_ifnum\_slidelayer=0\.maxlayer\_else+\_fi}\_vss}%
 }
+
 \_def\.pagerectangle#1{\_kern-2pt
    \_ifx\.coef\_undefined \_else \_afterfi{\_transformbox{\_pdfscale{\.coef}{\.coef}}}\_fi{%
    \_let\Blue=\_relax \_let\_ilinkcolor=\_relax
