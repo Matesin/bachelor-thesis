@@ -1,0 +1,17 @@
+\chap[fido] Why use passkeys
+
+The Internet has become an integral part of daily life for most of the world’s population. In December 2025, approximately 6.047 billion people (73.2\% of the global population) were Internet users, representing a 14\% increase compared to 2020 \cite[internet-usage-stats]. This growth, together with increasing reliance on online services, has been accompanied by a rise in cyberattacks and personal data breaches.
+
+This development highlights a fundamental weakness of password-based authentication. According to the Verizon Data Breach Investigations Report, approximately 88\% of breaches in 2025 involved stolen credentials \cite[verizon-report-2025]. Passwords are therefore inherently vulnerable to theft, reuse, and brute-force attacks.
+
+In response, organizations have increasingly adopted multi-factor authentication (MFA), which supplements passwords with additional verification factors such as one-time codes, authentication applications, or trusted devices. Its adoption has grown significantly; for example, 83\% of organizations required MFA for all IT access in 2024 \cite[jumpcloud-sme-2024]. Despite variations across surveys, it is clearly observable that MFA has become a popular safety measure.
+
+Ing.~Martin Endler, in his diploma thesis, argues that many of the authentication methods mentioned above “do not provide sufficient security and hinder the user experience” \cite[endler-thesis]. In response to these limitations, passkeys - standardized by the FIDO Alliance - are becoming more broadly used.
+
+A passkey is an FIDO authentication credential based on FIDO standards that allows a user to log in to apps and websites with the same process they use to unlock their device (biometrics, PIN, or pattern). Passkeys rely on asymmetric cryptography, where the private key is securely stored on the user’s authenticator, while the corresponding public key is registered with the service.
+
+According to data published by the FIDO Alliance, passkey support has already been adopted by approximately one fifth of the world’s top 100 websites and services \cite[fido-password-passkey-trends]. Furthermore, major technology providers, including Apple, Google, and Microsoft, have integrated passkey support into their platforms, allowing further support for this authentication method. 
+
+Although passkeys are often implemented as platform authenticators integrated into user devices, the FIDO2 framework also supports external authenticators in the form of hardware security keys. These devices store cryptographic credentials on dedicated hardware and perform authentication independently of the host system.
+
+As a result, 
