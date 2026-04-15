@@ -12,11 +12,11 @@ After evaluating the available NFC operating modes and specifications, it become
 
 \nl Taking these constraints into account, the implementation adopts NFC-A as the underlying transmission technology. NFC-A provides the broadest interoperability across existing NFC readers, particularly in mobile devices, and is the de facto standard for ISO-DEP–based communication and for Type 4 tag implementations.
 
-\nl Our implementation follows the FIDO CTAP standard \cite[fido-ctap-documentation].
+\nl Our implementation follows the FIDO CTAP standard~\cite[fido-ctap-documentation].
 
 \sec[implementation-hardware] Hardware
 
-The hardware chosen for the implementation is the STEVAL-D25R3916B, a daughter board of the STEVAL-25R3916B platform manufactured by STMicroelectronics \cite[STEVAL-25R3916B-brief]. This kit is an evaluation board for the 25R3916B NFC chip, which turned out to be the best option for the purpose of this thesis. 
+The hardware chosen for the implementation is the STEVAL-D25R3916B, a daughter board of the STEVAL-25R3916B platform manufactured by STMicroelectronics~\cite[STEVAL-25R3916B-brief]. This kit is an evaluation board for the 25R3916B NFC chip, which turned out to be the best option for the purpose of this thesis. 
 
 \nl The 25R3916B chip belongs to the STMicroelectronics universal NFC device family. It supports all main NFC operating modes, including reader/writer mode, peer-to-peer communication, and card emulation; however, it does not provide support for secure element–based card emulation.
 
@@ -38,7 +38,7 @@ The STEVAL-D25R3916B embeds the ST25R3916 chip with an antenna etched on the PCB
 
 Although research on suitable hardware platforms for this project was conducted as part of the B4BPROJ6 course during the winter semester 2025/2026, a supplementary evaluation of alternative solutions was subsequently performed. This was primarily motivated by the inconsistencies identified in the software stack provided by STMicroelectronics, as will be discussed in Section \ref[middleware].
 
-\nl Among the alternatives considered, the PN5180 was identified as a comparable solution, offering functionality equivalent \cite[PN5180-brief] to the selected ST-based hardware. A notable advantage of the NXP platform lies in the quality of its accompanying software libraries and reference implementations, which provide better support for development and integration. However, these are distributed under a license that restricts their use to NXP hardware, meaning that we would have to migrate the whole project to an NXP-manufactured MCU, which is beyond the scope of this bachelor thesis.
+\nl Among the alternatives considered, the PN5180 was identified as a comparable solution, offering functionality equivalent~\cite[PN5180-brief] to the selected ST-based hardware. A notable advantage of the NXP platform lies in the quality of its accompanying software libraries and reference implementations, which provide better support for development and integration. However, these are distributed under a license that restricts their use to NXP hardware, meaning that we would have to migrate the whole project to an NXP-manufactured MCU, which is beyond the scope of this bachelor thesis.
 
 \nl Although alternative solutions are available, the selected approach prioritizes compatibility with existing hardware architecture and general modularity of the system. For this reason, hardware from STMicroelectronics was chosen, as it enables straightforward integration with the current platform on both the software and legal side.
 
