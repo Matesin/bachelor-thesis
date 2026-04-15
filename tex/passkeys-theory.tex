@@ -1,8 +1,8 @@
-\chap[fido] An Alternative Authentication Method
+\chap[passkeys-theory] An Alternative Authentication Method
 
-This chapter defines the motivation for the use of an alternative authentication method.
+This chapter defines the motivation for the use of an alternative authentication method. 
 
-\nl The Internet has become an integral part of daily life for most of the world’s population. In December 2025, approximately 6.047 billion people (73.2\% of the global population) were Internet users, representing a 14\% increase compared to 2020 \cite[internet-usage-stats]. This growth, along with an increasing reliance on online services, has been accompanied by an increase in cyberattacks and personal data breaches.
+\nl The Internet has become an integral part of daily life for most of the world’s population. In December 2025, approximately 6.047 billion people (73.2\% of the global population) were Internet users, representing a 14\% imncrease compared to 2020 \cite[internet-usage-stats]. This growth, along with an increasing reliance on online services, has been accompanied by an increase in cyberattacks and personal data breaches.
 
 \nl This development highlights a fundamental weakness of password-based authentication. According to the Verizon Data Breach Investigations Report, approximately 88\% of breaches in 2025 involved stolen credentials \cite[verizon-report-2025]. Passwords are therefore inherently vulnerable to theft, reuse, and brute-force attacks.
 
@@ -19,4 +19,12 @@ This chapter defines the motivation for the use of an alternative authentication
 \secc[hardware] Hardware security keys
 
 Although passkeys are often implemented as platform authenticators integrated into user devices, the FIDO2 framework also supports external authenticators in the form of hardware security keys. These devices store cryptographic credentials on dedicated hardware and perform authentication independently of the host system and only upon user interaction, providing an additional layer of security.
+
+\nl  Currently, the hardware security key market is dominated by several major vendors, most notably Yubico with its Security Key Series. Other notable solutions include the Google Titan Security Key developed by Google and the SecurID authenticators made by RSA Security. In addition, several smaller or less widely cited manufacturers provide compatible FIDO2 security keys, including FEITIAN Technologies, Swissbit, and TrustKey.
+
+\nl Quantitative estimates of market share are difficult to obtain, as publicly available data are limited and often based on proprietary methodologies. Estimates  suggest, as of April 2026 \cite[yubico-market-share] that Yubico accounts for approximately 32\% and RSA Security for 24\% of the two-factor authentication solutions. However, these figures reflect only the customer base observed by the source platform and should be interpreted as indicative rather than representative of the global market share of hardware security keys.
+
+\nl A distinguishing characteristic of most commercially available hardware security keys is their closed-source firmware. Currently, there are open-source alternatives to these products. The first publicly known example was SoloKeys (developed between 2018 and 2024, now discontinued), followed by OpenSK by Google and Nitrokey. This project aims to be the first open-source implementation of support of FIDO2 over NFC in a security key written in C.
+
+\nl For a more comprehensive insight into the problematic of hardware security keys, including the underlying communication protocols, employed cryptographic mechanisms, and a detailed comparison of relevant standards, the reader is referred to the Master’s thesis by Endler, which is cited repeatedly throughout this work. 
 
