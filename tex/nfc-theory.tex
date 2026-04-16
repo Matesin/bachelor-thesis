@@ -144,8 +144,6 @@ The {\sbf ISO-DEP} (ISO Data Exchange Protocol), specified in ISO/IEC~14443-4\ci
 
 The {\sbf NFC-DEP} (NFC Data Exchange Protocol), defined in ISO/IEC~18092, is designed for peer-to-peer communication between two {\sbf active} NFC devices. Unlike ISO-DEP, which follows a reader–card model, NFC-DEP enables symmetric communication, allowing both devices to alternate between initiator and target roles.
 
-\nl NFC-DEP provides a frame-based data exchange mechanism, upon which higher-level protocols are built. In particular, the NFC Forum specifies the Logical Link Control Protocol (LLCP)~\cite[nfc-llcp] on top of NFC-DEP, which introduces connection-oriented communication and multiplexing. Further application-level protocols, such as the Simple NDEF Exchange Protocol (SNEP)~\cite[nfc-snep], operate above LLCP to enable structured message exchange.
-
 \nl In contrast to ISO-DEP, NFC-DEP does not utilize Application Protocol Data Units (APDUs) and does not follow a strict command–response model. Instead, communication is based on message-oriented data exchange, making it more suitable for peer-to-peer scenarios rather than smart card emulation.
 
 \nl For this reason, NFC-DEP is not applicable to the implementation presented in this thesis, as FIDO2 authentication over NFC relies on APDU-based communication provided by ISO-DEP.
