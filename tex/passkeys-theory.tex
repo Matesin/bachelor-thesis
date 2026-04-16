@@ -2,7 +2,7 @@
 
 This chapter defines the motivation for the use of an alternative authentication method. 
 
-\nl The Internet has become an integral part of daily life for most of the world’s population. In December 2025, approximately 6.047 billion people (73.2\% of the global population) were Internet users, representing a 14\% imncrease compared to 2020~\cite[internet-usage-stats]. This growth, along with an increasing reliance on online services, has been accompanied by an increase in cyberattacks and personal data breaches.
+\nl The Internet has become an integral part of daily life for most of the world’s population. In December 2025, approximately 6.047 billion people (73.2\% of the global population) were Internet users, representing a 14\% increase compared to 2020~\cite[internet-usage-stats]. This growth, along with an increasing reliance on online services, has been accompanied by an increase in cyberattacks and personal data breaches.
 
 \nl This development highlights a fundamental weakness of password-based authentication. According to the Verizon Data Breach Investigations Report, approximately 88\% of breaches in 2025 involved stolen credentials~\cite[verizon-report-2025]. Passwords are therefore inherently vulnerable to theft, reuse, and brute-force attacks.
 
@@ -12,7 +12,11 @@ This chapter defines the motivation for the use of an alternative authentication
 
 \nl Ing.~Martin Endler, in his diploma thesis, argues that many of the authentication methods mentioned above “do not provide sufficient security and hinder the user experience”~\cite[endler-thesis]. In response to these limitations, passkeys - standardized by the FIDO Alliance - are becoming more broadly used.
 
-\nl A passkey is an FIDO authentication credential based on FIDO standards that allows a user to log into apps and websites with the same process they use to unlock their device (biometrics, PIN or pattern). Passkeys rely on asymmetric cryptography, where the private key is securely stored on the user’s authenticator, while the corresponding public key is registered with the service.
+\nl The FIDO Alliance\urlnote{https://fidoalliance.org} defines a passkey as 
+\begquote 
+\dots [an] authentication credential based on FIDO standards that allows a user to log into apps and websites with the same process they use to unlock their device (biometrics, PIN or pattern). Passkeys rely on asymmetric cryptography, where the private key is securely stored on the user’s authenticator, while the corresponding public key is registered with the service 
+\endquote
+~\urlnote{https://fidoalliance.org/passkeys/}.
 
 \nl According to data published by the FIDO Alliance, passkey support has already been adopted by approximately a fifth of the world’s top 100 websites and services~\cite[fido-password-passkey-trends]. Furthermore, major technology providers, including Apple, Google, and Microsoft, have integrated passkey support into their platforms, allowing further support for this authentication method. 
 
@@ -24,7 +28,28 @@ Although passkeys are often implemented as platform authenticators integrated in
 
 \nl Quantitative estimates of market share are difficult to obtain, as publicly available data are limited and often based on proprietary methodologies. Estimates  suggest, as of April 2026~\cite[yubico-market-share] that Yubico accounts for approximately 32\% and RSA Security for 24\% of the two-factor authentication solutions. However, these figures reflect only the customer base observed by the source platform and should be interpreted as indicative rather than representative of the global market share of hardware security keys.
 
-\nl A distinguishing characteristic of most commercially available hardware security keys is their closed-source firmware. Currently, there are open-source alternatives to these products. The first publicly known example was SoloKeys (developed between 2018 and 2024, now discontinued), followed by OpenSK by Google and Nitrokey. This project aims to be the first open-source implementation of support of FIDO2 over NFC in a security key written in C.
+\nl A distinguishing characteristic of most commercially available hardware security keys is their closed-source firmware. Currently, there are open-source alternatives to these products. The first publicly known example was SoloKeys (developed between 2018 and 2024, now discontinued), followed by OpenSK by Google and Nitrokey. This project aims to be the first open-source implementation of FIDO2 over NFC in a security key written in C.
 
-\nl For a more comprehensive insight into the problematic of hardware security keys, including the underlying communication protocols, employed cryptographic mechanisms, and a detailed comparison of relevant standards, the reader is referred to the Master’s thesis by Endler, which is cited repeatedly throughout this work. 
+\sec[fido2-framework] The FIDO2 Framework
+
+\nl The FIDO2 framework, developed by the FIDO Alliance in collaboration with the W3C, is the current industry standard for strong, phishing-resistant, and passwordless authentication. It is an open framework that uses public-key cryptography.
+
+\nl FIDO2 is composed of two complementary core specifications:
+
+{\sbf WebAuthn (Web Authentication):} A W3C standard API that enables web applications to create and use public-key credentials. It defines how a browser or platform (the "Client") communicates with a web service (the "Relying Party") to register and authenticate users.
+
+{\sbf CTAP (Client-to-Authenticator Protocol):} A FIDO Alliance specification that defines how a Client (such as a browser or OS) communicates with an authenticator (such as a hardware security key or a smartphone) to fulfill WebAuthn requests.
+
+\nl The CTAP standard defines two primary versions:
+
+\begitems
+
+* {\sbf CTAP1 (formerly U2F):} Supports legacy FIDO U2F credentials.
+
+* {\sbf CTAP2:} The current standard for FIDO2, which introduces support for passkeys, PINs, and broader cryptographic flexibility.
+
+\enditems
+
+\nl A detailed breakdown of this framework, including a detailed description of the CTAP protocol, can be found in the work of Endler~\cite[endler-thesis], along with a more comprehensive insight into the problematic of hardware security keys, including the cryptographic mechanisms that are commonly used.
+
 
