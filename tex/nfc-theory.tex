@@ -2,7 +2,7 @@
 
 This chapter introduces the principles of Near Field Communication (NFC) technology. Due to the extensive nature of NFC standardization, the main focus is placed on those of its mechanisms that are relevant to the presented implementation. 
 
-\nl The emphasis is placed on NFC-A technology as defined by ISO/IEC~14443, including the anti-collision and activation procedures, and the ISO-DEP protocol (ISO/IEC~14443-4), which provides a transport layer for structured data exchange. These mechanisms form the basis for implementing a Type~4 Tag in card emulation mode, which is a prerequisite for supporting higher-level protocols such as FIDO2 over NFC.
+\nl The emphasis is placed on the NFC-A technology as defined by ISO/IEC~14443, including the anti-collision and activation procedures and the ISO-DEP protocol (ISO/IEC~14443-4), which provides a transport layer for structured data exchange. These mechanisms form the basis for the implementation of a Type~4 tag in the card emulation mode, which is a prerequisite to support higher-level protocols such as FIDO2 over NFC.
 
 \nl Other technologies within the NFC ecosystem are discussed only briefly to provide context and completeness.
 
@@ -10,17 +10,23 @@ This chapter introduces the principles of Near Field Communication (NFC) technol
 
 \nl Near Field Communication (NFC) is a short-range wireless communication technology derived from radio-frequency identification (RFID) systems. It enables bidirectional data exchange between devices in close proximity, typically within a range of up to 10~cm, with reliable operation occurring at distances of approximately 4~cm~\cite[rfid-nfc-introduction].
 
-\nl NFC operates at a carrier frequency of 13.56~MHz and relies on inductive coupling between loop antennas. In this mechanism, an active device generates an electromagnetic field, while a passive device modulates this field to transmit data. This architecture enables low-power operation and allows passive devices, such as contactless smart cards, to operate without an internal power source.
+\nl NFC operates at a carrier frequency of 13.56~MHz and is based on inductive coupling between loop antennas. In this mechanism, an active device generates an electromagnetic field, while a passive device modulates this field to transmit data.
 
-\nl The technology is standardized by international organizations, primarily ISO/IEC and the NFC Forum. The key specifications include ISO/IEC~14443, which defines proximity card communication (used in NFC-A and NFC-B), and ISO/IEC~18092, which specifies peer-to-peer communication. In addition, the NFC Forum defines higher-level protocols and data formats to ensure interoperability across devices.
+\nl The NFC technology is standardized by international organizations, primarily ISO/IEC and the NFC Forum. The key specifications include ISO/IEC~14443, which defines proximity card communication (used in NFC-A and NFC-B), and ISO/IEC~18092, which specifies peer-to-peer communication. In addition, the NFC Forum defines higher-level protocols and data formats to ensure interoperability across devices.
 
 \nl NFC supports three primary operating modes: reader/writer mode, card emulation mode, and peer-to-peer mode. From the perspective of this thesis, card emulation mode is of particular importance, as it allows the device to behave as a contactless smart card and participate in ISO-DEP communication with an external reader.
 
 \sec[nfc-terminology] Terminology
 \begitems 
 
-* {\sbf{Energy Harvesting}}
+* {\sbf PICC}
+\nl Proximity Inductively-Coupled Card
+
+* {\sbf Energy Harvesting}
 \nl The ability of an NFC device to harvest energy from an electromagnetic field should it be present in one.
+
+* {\sbf APDU}
+\nl Application Protocol Data Unit 
 
 \enditems
 
@@ -99,9 +105,50 @@ NFC-F is based on the JIS X 6319-4 specification and was originally developed by
 
 \nl However, due to its regional focus and protocol differences, NFC-F is not universally supported by all NFC readers. Consequently, its applicability in general-purpose NFC implementations (such as extending the LionKey platform) is limited.
 
-\sec[nfc-picc] PICC
-\secc[nfc-fwi] Frame Waiting Time Integer
-\secc[nfc-fsci] Frame Size of Proximity Card Integer
-\secc[nfc-sfgi] Start-Up Frame Guard Time Integer 
-\secc[nfc-hb] Historical Bytes
+\sec[nfc-protocols] NFC Communication Protocols
+
+NFC communication is built upon a layered protocol stack that defines how data is exchanged between devices after the initial activation phase. At the transport and higher communication layers, two primary protocols are used: ISO-DEP and NFC-DEP. In addition, several auxiliary protocol layers defined by the NFC Forum provide standardized data exchange formats.
+
+\secc[nfc-iso-dep] ISO-DEP
+
+The {\sbf ISO-DEP} (ISO Data Exchange Protocol), specified in ISO/IEC~14443-4\cite[iso14443-4], defines a transport layer for reliable data exchange between an NFC initiator and a proximity integrated circuit card. It extends the lower NFC-A/B protocols by introducing a block-oriented, half-duplex communication mechanism that enables structured and robust transmission of application data.
+
+\nl Communication in ISO-DEP is organized into protocol data units (blocks), which are exchanged between the initiator and the target. Three types of blocks are defined: {\sbf I-Blocks} for carrying application data, {\sbf R-Blocks} for acknowledgments and retransmission requests, and {\sbf S-Blocks} for control operations such as waiting time extension or protocol deactivation. This structure ensures reliable communication even in the presence of transmission errors.
+
+\nl To support transmission of data exceeding the maximum frame size, ISO-DEP introduces {\sbf chaining}, which allows large payloads to be split across multiple I-Blocks. This mechanism is particularly important for applications such as FIDO2, where APDU messages may exceed the size of a single NFC frame.
+
+\nl ISO-DEP serves as the transport layer for {\sbf Application Protocol Data Units (APDUs)}, which implement a command–response communication model. In this model, the initiator sends a command APDU (C-APDU), and the target responds with a response APDU (R-APDU). This abstraction enables higher-level protocols, including smart card applications and CTAP over NFC, to operate independently of the underlying transmission details.
+
+\nl The protocol further defines several timing and configuration parameters that are critical for interoperability:
+
+\begitems
+* {\sbf Frame Waiting Time (FWT)} 
+\nl specifies the maximum time the initiator waits for a response from the target. It is derived from the Frame Waiting Time Integer (FWI) and directly influences the allowable processing time of the card. Violating this constraint typically results in termination of the NFC session.
+* {\sbf Waiting Time Extension (WTX)} 
+\nl allows the target to request additional processing time beyond the configured FWT. This mechanism is essential for operations involving computationally intensive tasks, such as cryptographic processing.
+* {\sbf Frame Size (FSC/FSD)}
+\nl defines the maximum payload size of a single frame for the card (FSC) and the device (FSD), determining whether chaining is required.
+* {\sbf Frame Guard Time (FGT)} 
+\nl specifies the minimum delay between consecutive frames, ensuring proper synchronization between devices.
+* {\sbf Device Identifier (DID)}
+\nl allows logical addressing of devices in more complex communication scenarios, although it is rarely used in typical NFC applications.
+* {\sbf Historical Bytes (HB)}
+\nl optional data included in the ATS (Answer To Select), providing additional information about the capabilities of the card.
+\enditems
+
+\nl Correct configuration and handling of these parameters is essential for ensuring compatibility with commercial NFC readers and mobile devices. In particular, strict adherence to timing constraints, such as frame waiting time, is required to prevent premature session termination.
+
+\nl In this implementation, ISO-DEP is used in card emulation mode, where the embedded device acts as a passive target responding to APDU commands issued by an external reader. This configuration enables the integration of CTAP over NFC and forms the core communication mechanism of the presented solution.
+
+\secc[nfc-nfc-dep] NFC-DEP
+
+The {\sbf NFC-DEP} (NFC Data Exchange Protocol), defined in ISO/IEC~18092, is designed for peer-to-peer communication between two {\sbf active} NFC devices. Unlike ISO-DEP, which follows a reader–card model, NFC-DEP enables symmetric communication, allowing both devices to alternate between initiator and target roles.
+
+\nl NFC-DEP provides a frame-based data exchange mechanism, upon which higher-level protocols are built. In particular, the NFC Forum specifies the Logical Link Control Protocol (LLCP)~\cite[nfc-llcp] on top of NFC-DEP, which introduces connection-oriented communication and multiplexing. Further application-level protocols, such as the Simple NDEF Exchange Protocol (SNEP)!]~\cite[nfc-snep], operate above LLCP to enable structured message exchange.
+
+\nl In contrast to ISO-DEP, NFC-DEP does not utilize Application Protocol Data Units (APDUs) and does not follow a strict command–response model. Instead, communication is based on message-oriented data exchange, making it more suitable for peer-to-peer scenarios rather than smart card emulation.
+
+\nl For this reason, NFC-DEP is not applicable to the implementation presented in this thesis, as FIDO2 authentication over NFC relies on APDU-based communication provided by ISO-DEP.
+
+
 
