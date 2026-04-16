@@ -16,7 +16,7 @@ The evaluation process was structured in two stages, corresponding to different 
 
 \sec[transmission-test] Response Testing
 
-The basic communication parameters of the emulated card were verified using the \code{nfc-poll} utility from the \code{libnfc} library (version 1.8.0). The tool was used with an external NFC reader (ACS ACR122U) to observe the activation sequence and extract the low-level protocol parameters defined by ISO/IEC~14443-3 and ISO/IEC~14443-4.
+The basic communication parameters of the emulated card were verified using the \code{nfc-poll} utility from the \code{libnfc} library. The tool was used with an external NFC reader (ACS ACR122U) to observe the activation sequence.
 
 \nl The following values were obtained during polling:
 
@@ -29,7 +29,7 @@ ATS:             78 80 80 00
 
 \nl The {\sbf ATQA} value (\code{0x0044}) indicates support for a single-size UID and confirms compliance with the NFC-A anti-collision protocol. The {\sbf UID} is a 4-byte identifier, in our case a static _LNK identifier. If used commercially, this value will be unique to each piece of Lionkey hardware.
 
-\nl The {\sbf SAK} value (\code{0x20}) signals that the device implements the ISO-DEP protocol. 
+\nl The {\sbf SAK}  (\code{0x20}) signals that the device implements the ISO-DEP protocol. 
 
 \nl The {\sbf ATS} sets the parameters of the upcoming transaction. The value of the first byte, \code{0x78}, represents the frame size (256 bytes in this case). \code{0x80}, as the value of the second byte, represents the bit rate; in this case, it is \code{ISODEP_ATS_TA_SAME_D}, meaning that the same bit rate is expected in both directions. The third byte specifies 8 as WFI and 0 as SFGI. 
 
