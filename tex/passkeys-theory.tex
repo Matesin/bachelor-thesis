@@ -2,41 +2,43 @@
 
 This chapter defines the motivation for the use of an alternative authentication method. 
 
-\nl The Internet has become an integral part of daily life for most of the world’s population. In December 2025, approximately 6.047 billion people (73.2\% of the global population) were Internet users, representing a 14\% increase compared to 2020~\cite[internet-usage-stats]. This growth, along with an increasing reliance on online services, has been accompanied by an increase in cyberattacks and personal data breaches.
+\nl The Internet has become an integral part of daily life for most of the world’s population. In December 2025, approximately {\sbf 6.047 billion people} (73.2\% of the global population) were {\sbf Internet users}, representing a 14\% increase compared to 2020~\cite[internet-usage-stats]. This growth, along with an increasing reliance on online services, has been accompanied by an increase in cyberattacks and personal data breaches.
 
-\nl This development highlights a fundamental weakness of password-based authentication. According to the Verizon Data Breach Investigations Report, approximately 88\% of breaches in 2025 involved stolen credentials~\cite[verizon-report-2025]. Passwords are therefore inherently vulnerable to theft, reuse, and brute-force attacks.
+\nl This development highlights a fundamental weakness of password-based authentication. According to the Verizon Data Breach Investigations Report, approximately {\sbf 88\% of breaches} in 2025 involved {\sbf stolen credentials}~\cite[verizon-report-2025]. Passwords are therefore inherently vulnerable to theft, reuse, and brute-force attacks.
 
-\nl In response, organizations have increasingly adopted multi-factor authentication (MFA), which supplements passwords with additional verification factors such as one-time codes, authentication applications, or trusted devices. Its adoption has grown significantly; for example, 83\% of organizations required MFA for all access to IT in 2024~\cite[jumpcloud-sme-2024]. Despite variations across surveys, it is clearly observable that MFA has become a popular safety measure.
+\nl In response, organizations have increasingly {\sbf adopted multi-factor authentication (MFA}), which supplements passwords with additional verification factors such as one-time codes, authentication applications, or trusted devices. The adoption of MFA has grown significantly; for example, 83\% of organizations required MFA for all access to IT in 2024~\cite[jumpcloud-sme-2024]. Despite variations across surveys, it is clearly observable that MFA has become a popular safety measure.
 
 \sec[passkeys] Passkeys
 
-\nl Ing.~Martin Endler, in his diploma thesis, argues that many of the authentication methods mentioned above ``do not provide sufficient security and hinder the user experience''~\cite[endler-thesis]. In response to these limitations, passkeys - standardized by the FIDO Alliance - are becoming more broadly used.
+\nl Despite the growing usage of MFA, Ing. Martin Endler argues in his diploma thesis that many existing authentication methods
+``do not provide sufficient security and hinder the user experience''
+~\cite[endler-thesis]. Passkeys -- standardized by the FIDO Alliance -- have emerged as a response to these limitations.
 
-\nl The FIDO Alliance\urlnote{https://fidoalliance.org} defines a passkey as 
- ``\dots [an] authentication credential based on FIDO standards that allows a user to log into apps and websites with the same process they use to unlock their device (biometrics, PIN or pattern). Passkeys rely on asymmetric cryptography, where the private key is securely stored on the user’s authenticator, while the corresponding public key is registered with the service ''
+\nl The FIDO Alliance {\sbf defines a passkey} as 
+ ``\dots [an] authentication {\sbf credential} based on FIDO standards that allows a user to {\sbf log into apps and websites} with the same process they use to unlock their device (biometrics, PIN or pattern). Passkeys rely on {\sbf asymmetric cryptography}, where the private key is securely stored on the user’s authenticator, while the corresponding public key is registered with the service ''
 \urlnote{https://fidoalliance.org/passkeys/}.
 
-\nl According to data published by the FIDO Alliance, passkey support has already been adopted by approximately a fifth of the world’s top 100 websites and services~\cite[fido-password-passkey-trends]. Furthermore, major technology providers, including Apple, Google, and Microsoft, have integrated passkey support into their platforms, allowing further support for this authentication method. 
+\nl According to data published by the FIDO Alliance, passkey support has already been {\sbf adopted} by approximately a {\sbf fifth} of the world’s {\sbf top 100 websites} and services~\cite[fido-password-passkey-trends]. Furthermore, major technology providers, including Apple, Google, and Microsoft, have integrated passkey support into their platforms, allowing further support for this authentication method. 
 
 \secc[hardware] Hardware security keys
 
-Although passkeys are often implemented as platform authenticators integrated into user devices, the FIDO2 framework also supports external authenticators in the form of hardware security keys. These devices store cryptographic credentials on dedicated hardware and perform authentication independently of the host system and only upon user interaction, providing an additional layer of security.
+Although passkeys are often implemented as platform authenticators integrated into user devices, the {\sbf FIDO2} framework also supports {\sbf external authenticators} in the form of {\sbf hardware security keys}. These devices {\sbf store cryptographic credentials} on dedicated hardware and {\sbf perform authentication independently} of the host system and only {\sbf upon user interaction}, providing an additional layer of security.
 
-\nl  Currently, the hardware security key market is dominated by several major vendors, most notably Yubico with its Security Key Series. Other notable solutions include the Google Titan Security Key developed by Google and the SecurID authenticators made by RSA Security. In addition, several smaller or less widely cited manufacturers provide compatible FIDO2 security keys, including FEITIAN Technologies, Swissbit, and TrustKey.
+\nl  Currently, the hardware security key market is dominated by several major vendors, most notably {\sbf Yubico} with its Security Key Series. Other notable solutions include the Google Titan Security Key developed by Google and the SecurID authenticators made by RSA Security. In addition, several smaller or less widely cited manufacturers provide compatible FIDO2 security keys, including FEITIAN Technologies, Swissbit, and TrustKey.
 
 \nl Quantitative estimates of market share are difficult to obtain, as publicly available data are limited and often based on proprietary methodologies. Estimates  suggest, as of April 2026~\cite[yubico-market-share] that Yubico accounts for approximately 32\% and RSA Security for 24\% of the two-factor authentication solutions. However, these figures reflect only the customer base observed by the source platform and should be interpreted as indicative rather than representative of the global market share of hardware security keys.
 
-\nl A distinguishing characteristic of most commercially available hardware security keys is their closed-source firmware. Currently, there are open-source alternatives to these products. The first publicly known example was SoloKeys (developed between 2018 and 2024, now discontinued), followed by OpenSK by Google and Nitrokey. This project aims to be the first open-source implementation of FIDO2 over NFC in a security key written in C.
+\nl A distinguishing {\sbf characteristic} of most commercially available hardware security keys is their {\sbf closed-source firmware}. Open-source alternatives do exist but remain rare: the first publicly known example was SoloKeys (developed 2018–2024, now discontinued), followed by OpenSK by Google and Nitrokey. The present work contributes to this space by providing the first open-source implementation of FIDO2 over NFC in a C-based security key.
 
 \sec[fido2-framework] The FIDO2 Framework
 
-\nl The FIDO2 framework, developed by the FIDO Alliance in collaboration with the W3C, is the current industry standard for strong, phishing-resistant, and passwordless authentication. It is an open framework that uses public-key cryptography.
+\nl The FIDO2 framework, developed by the FIDO Alliance in collaboration with the W3C, is the current {\sbf industry standard} for {\sbf strong, phishing-resistant and passwordless authentication}. It is an open framework that uses public-key cryptography.
 
 \nl FIDO2 is composed of two complementary core specifications:
 
-{\sbf WebAuthn (Web Authentication):} A W3C standard API that enables web applications to create and use public-key credentials. It defines how a browser or platform (the "Client") communicates with a web service (the "Relying Party") to register and authenticate users.
+* {\sbf WebAuthn (Web Authentication):} A W3C standard API that enables web applications to create and use public-key credentials. It defines how a browser or platform (the "Client") communicates with a web service (the "Relying Party") to register and authenticate users.
 
-{\sbf CTAP (Client-to-Authenticator Protocol):} A FIDO Alliance specification that defines how a Client (such as a browser or OS) communicates with an authenticator (such as a hardware security key or a smartphone) to fulfill WebAuthn requests.
+* {\sbf CTAP (Client-to-Authenticator Protocol):} A FIDO Alliance specification that defines how a Client communicates with an authenticator (such as a hardware security key or a smartphone) to fulfill WebAuthn requests.
 
 \nl The CTAP standard defines two primary versions:
 
@@ -44,10 +46,10 @@ Although passkeys are often implemented as platform authenticators integrated in
 
 * {\sbf CTAP1 (formerly U2F):} Supports legacy FIDO U2F credentials.
 
-* {\sbf CTAP2:} The current standard for FIDO2, which introduces support for passkeys, PINs, and broader cryptographic flexibility.
+* {\sbf CTAP2:} The current standard for FIDO2, which improves user verification methods.
 
 \enditems
 
-\nl A detailed breakdown of this framework, including a detailed description of the CTAP protocol, can be found in the work of Endler~\cite[endler-thesis], along with a more comprehensive insight into the problematic of hardware security keys, including the cryptographic mechanisms that are commonly used.
+\nl A {\sbf detailed breakdown} of this framework, including a detailed description of the CTAP protocol, can be found in the {work of Endler~\cite[endler-thesis]}, along with a more comprehensive insight into the problematic of hardware security keys, including the cryptographic mechanisms that are commonly used.
 
 
