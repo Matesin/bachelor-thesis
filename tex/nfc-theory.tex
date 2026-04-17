@@ -111,7 +111,7 @@ The {\sbf ISO-DEP} (ISO Data Exchange Protocol), specified in ISO/IEC~14443-4~\c
 
 \midinsert \clabel[table-ats]{ATS message structure}
 \ctable{c|c|c|c|c|c|c}{
-\hfil TL & T0 & TA & TB & TC & T1 & Tk \crl \tskip5pt
+\hfil TL & T0 & TA(1) & TB(1) & TC(1) & T1 & \(T_k\) \crl \tskip5pt
  & & \multispan3 interface \vrule & & historical bytes \crl
 }
 \caption/t ATS structure.
@@ -150,17 +150,7 @@ The {\sbf ISO-DEP} (ISO Data Exchange Protocol), specified in ISO/IEC~14443-4~\c
 
 \nl APDUs can be encoded in short or extended format. In the short format, the length fields are limited to one byte, allowing payloads of up to 255 bytes. The extended format uses two-byte length fields, enabling payloads of up to 65,535 bytes.
 
-\midinsert
-\clabel[table-apdu-short]{Short APDU cases}
-\ctable{c|c|c|c|c|c|c}{
-Case & CLA & INS & P1 & P2 & Lc & Le \crl \tskip5pt
-1S & X & X & X & X & -- & -- \crl
-2S & X & X & X & X & -- & Le \crl
-3S & X & X & X & X & Lc & -- \crl
-4S & X & X & X & X & Lc & Le \crl
-}
-\caption/t Short APDU command cases.
-\endinsert
+\nl In the short format, the C-APDU consists of a 4-byte header followed by the optional fields Lc, Data (0–255 bytes) and Le, where both Lc and Le are encoded using a single byte.
 
 \midinsert
 \clabel[table-apdu-short-layout]{Short APDU byte layout}
@@ -168,27 +158,29 @@ Case & CLA & INS & P1 & P2 & Lc & Le \crl \tskip5pt
 \hfil CLA & INS & P1 & P2 & Lc & Data & Le \crl \tskip5pt
 1 byte & 1 byte & 1 byte & 1 byte & 0/1 & 0--255 & 0/1 \crl
 }
-\caption/t Byte-level structure of short APDUs.
+\caption/t Byte-level structure of short C-APDUs.
 \endinsert
 
-\midinsert
-\clabel[table-apdu-extended]{Extended APDU cases}
-\ctable{c|c|c|c|c|c|c}{
-Case & CLA & INS & P1 & P2 & Lc (3B) & Le (2B) \crl \tskip5pt
-2E & X & X & X & X & -- & Le \crl
-3E & X & X & X & X & Lc & -- \crl
-4E & X & X & X & X & Lc & Le \crl
-}
-\caption/t Extended APDU command cases.
-\endinsert
+\nl In the extended format, the presence of the leading \code{0x00} byte indicates extended length encoding, followed by two-byte length fields for Lc and Le. 
 
 \midinsert
-\clabel[table-apdu-extended-layout]{Extended APDU byte layout}
+\clabel[table-apdu-extended-layout]{Extended C-APDU byte layout}
 \ctable{c|c|c|c|c|c|c|c}{
 \hfil CLA & INS & P1 & P2 & 00 & Lc(Hi) & Lc(Lo) & Data/Le \crl \tskip5pt
 1B & 1B & 1B & 1B & ext. marker & \multispan2 length \vrule & variable \crl
 }
-\caption/t Byte-level structure of extended APDUs (leading 0x00 indicates extended length).
+\caption/t Byte-level structure of extended C-APDUs.
+\endinsert
+
+\nl Response APDUs consist of an optional data field followed by a mandatory two-byte status word (SW1, SW2). 
+
+\midinsert
+\clabel[table-rapdu-general]{R-APDU structure}
+\ctable{c|c|c}{
+\hfil Data & SW1 & SW2 \crl \tskip5pt
+(optional) response data & \multispan2 status word \crl
+}
+\caption/t General structure of a R-APDU.
 \endinsert
 
 \nl The practical structure of APDU communication can be illustrated on the {\sbf following example}: 
@@ -202,15 +194,15 @@ R-APDU: 46 49 44 4F 5F 32 5F 30   90 00
         \_______ Data ________/ \SW1 SW2/
 \endtt
 
-\nl In this example, the C-APDU consists of the following fields: CLA~=~\code{0x00} (a standard starting point for commands), INS~= ~ \code{0xA4} (SELECT instruction), P1~=~\code{0x04} (selection by name) and P2~=~\code{0x00}. The field Lc~=~\code{0x08} specifies the length of the data field, which contains the 8-byte FIDO application identifier (AID) (\code{A0 00 00 06 47 2F 00 01}). Upon processing this message, the device responds with an R-APDU.
+\nl In this example, the C-APDU consists of the following fields: CLA~=~\code{0x00} (interindustry class byte - a standard entry point for commands), INS~=~\code{0xA4} (SELECT instruction), P1~=~\code{0x04} (selection by name) and P2~=~\code{0x00}. The field Lc~=~\code{0x08} specifies the length of the data field, which contains the 8-byte FIDO application identifier (AID) (\code{A0 00 00 06 47 2F 00 01}). Upon processing this message, the device responds with an R-APDU.
 
-\nl The R-APDU contains the response data followed by the status word. The data field corresponds to the ASCII string ``FIDO\_2\_0'', while the status word \code{0x9000} indicates successful execution of the command.
+\nl The R-APDU contains the response data followed by the status word. The data field corresponds to the ASCII string ``FIDO\_2\_0'', while the status word~\code{0x9000} indicates successful execution of the command.
 
 \seccc[nfc-chaining-difference] Chaining mechanisms
 
 \nl Within ISO-DEP, APDUs are transported using I-Blocks. Since the maximum size of a single ISO-DEP frame is limited by the negotiated frame size, APDUs exceeding this size must be fragmented. This is achieved through {\sbf ISO-DEP chaining}, where a single APDU is split across multiple I-Blocks and reassembled by the receiving side.
 
-\nl In addition to transport-level fragmentation, large responses may also be handled at the application level. In the case of short APDUs, the response length is limited by the value of the Le field. If the response exceeds this limit, it can be delivered in multiple steps using the status word mechanism (e.g., SW1~=~0x61), where the client issues the GET RESPONSE command to retrieve the remaining data.
+\nl In addition to transport-level fragmentation, large responses may also be handled at the application level. In the case of short APDUs, the response length is limited by the value of the Le field. If the response exceeds this limit, it can be delivered in multiple steps using the status word mechanism (e.g., SW1~=~\code{0x61}), where the client issues the GET RESPONSE command to retrieve the remaining data.
 
 \nl The two chaining mechanisms operate at different layers: ISO-DEP chaining ensures reliable transmission of a single APDU over multiple frames, while application-level response handling enables the transfer of data exceeding the limits of the APDU format itself.
 
