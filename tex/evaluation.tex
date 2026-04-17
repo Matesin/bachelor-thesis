@@ -84,15 +84,15 @@ The NDEF functionality was evaluated using a URI record to verify correct Type~4
 
 \nl More specifically, the observed APDU flow consisted of the following steps: (i) SELECT command for the NDEF application identifier, (ii) SELECT command for the Capability Container (CC) file, (iii) READ BINARY command to retrieve the CC file, (iv) SELECT command for the NDEF file, and (v) READ BINARY command to retrieve the NDEF message. This sequence was executed consistently on all devices tested without deviation.
 
-\nl Response latency was measured at the APDU level in debug mode in 50 trials. The average response time was 25~ms for SELECT commands and 34~ms for READ BINARY commands. The increased latency for READ operations reflects the larger data payload and processing overhead associated with file retrieval. From the user perspective, no perceptible delay was observed during the interaction.
-
-\nl We also verified correct state machine behavior by manually sending APDUs containing both valid and invalid NDEF commands. This included checking proper handling of file selection and data access as well as handling of invalid APDUs. 
-
 \midinsert
 \clabel[img-ndef-handling]{NDEF Handling Log}
 \picheight = 90mm \cinspic ../images/nfc-ndef-flow.png
 \caption /f Device log of NDEF APDU communication.
 \endinsert
+
+\nl Response latency was measured at the APDU level in debug mode in 50 trials. The average response time was 25~ms for SELECT commands and 34~ms for READ BINARY commands. The increased latency for READ operations reflects the larger data payload and processing overhead associated with file retrieval. From the user perspective, no perceptible delay was observed during the interaction.
+
+\nl We also verified correct state machine behavior by manually sending APDUs containing both valid and invalid NDEF commands. This included checking proper handling of file selection and data access as well as handling of invalid APDUs. 
 
 \secc Use of CTAP on Real WebAuthn-enabled Websites
 
