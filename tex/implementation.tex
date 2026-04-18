@@ -97,6 +97,6 @@ In terms of code, the software implementation follows the practices set by Ing. 
 
 \nl Upon receiving an APDU from the reader, the message is parsed and processed according to its semantics. The parser supports all defined APDU formats and handles edge cases according to the mentioned ISO specification. The implementation supports both CTAP2-related communication and basic NDEF communication. The NDEF state machine provides the user with an URI record that directs the user to the lionkey.dev website. 
 
-Upon receiving, parsing and, in case of a chained APDU request, concatenating a CTAP2 command, this is then handled by the CTAP API provided in the original LionKey solution. The 
+\nl Upon receiving, parsing and, in case of a chained APDU request, concatenating a CTAP2 command, this is then handled by the CTAP API provided in the original LionKey solution.
 
 \nl Management of the communication state machine is performed by periodic polling of the exchange status provided with the RFAL library with errors handled in accordance with the ISO specification.
