@@ -34,14 +34,6 @@ The STEVAL-D25R3916B embeds the ST25R3916 chip with an antenna etched on the PCB
 \caption /f The STEVAL-D25R3916B board.
 \endinsert
 
-\secc[alternatives] Alternative Chips
-
-Although research on suitable hardware platforms for this project was conducted as part of the B4BPROJ6 course during the winter semester 2025/2026, a supplementary evaluation of alternative solutions was subsequently performed. 
-
-\nl Among the alternatives considered, the PN5180 was identified as a comparable solution, offering functionality equivalent~\cite[PN5180-brief] to the selected ST-based hardware. A notable advantage of the NXP platform lies in the quality of its accompanying software libraries and reference implementations, which provide better support for development and integration. However, these are distributed under a license that restricts their use to NXP hardware, meaning that we would have to migrate the whole project to an NXP-manufactured MCU, which is beyond the scope of this bachelor thesis.
-
-\nl Although alternative solutions are available, the selected approach prioritizes compatibility with existing hardware architecture and general modularity of the system. For this reason, hardware from STMicroelectronics was chosen, as it enables straightforward integration with the current platform on both the software and legal side.
-
 \secc[note-energy-harvesting] Note: Energy Harvesting
 
 \nl A significant limitation of the selected device is its absence of energy harvesting capabilities. Consequently, the security key cannot operate as a fully passive, standalone authenticator and requires an external power source during operation. It is important to note that achieving true standalone functionality would require not only an NFC frontend capable of efficient energy harvesting but also a substantially lower-power MCU. 
@@ -85,9 +77,9 @@ The IRQ line is asserted by the NFC frontend to indicate events such as receptio
 
 \sec[nfc-software] Software Implementation
 
-The software implementation follows the practices set by Ing. Endler in the original project. It is written in C with no dynamic memory allocations utilizing a layered design that separates the NFC transport layer, APDU processing, and higher-level FIDO logic. 
+In terms of code, the software implementation follows the practices set by Ing. Endler in the original project. It is written in C with no dynamic memory allocations utilizing a layered design that separates the NFC transport layer, APDU processing, and higher-level FIDO logic. 
 
-\nl NFC functionality is implemented using a set of state machines integrated into the existing application architecture, with the NFC worker function being ran periodically from the main application loop. 
+\nl The NFC functionality is implemented using a set of state machines integrated into the existing application architecture, with the NFC worker function being ran periodically from the main application loop. 
 
 \nl The primary state machine models the operational state of the NFC frontend and distinguishes between the following states:
 \begitems
@@ -103,6 +95,8 @@ The software implementation follows the practices set by Ing. Endler in the orig
 
 \nl To ensure non-blocking operation and enable concurrent execution of other critical components in parallel with NFC, the card emulation task is implemented as a separate state machine. This secondary state machine governs the progression of individual NFC transactions, including reception and transmission phases. 
 
-\nl Upon receiving an APDU from the reader, the message is parsed and processed according to its semantics. The parser supports all defined APDU formats. The implementation supports both FIDO-related communication and basic NDEF communication, providing a URI record that directs the user to the lionkey.dev website. The parsed FIDO requests are handled by the API that was already implemented in the original project.
+\nl Upon receiving an APDU from the reader, the message is parsed and processed according to its semantics. The parser supports all defined APDU formats and handles edge cases according to the mentioned ISO specification. The implementation supports both CTAP2-related communication and basic NDEF communication. The NDEF state machine provides the user with an URI record that directs the user to the lionkey.dev website. 
+
+Upon receiving, parsing and, in case of a chained APDU request, concatenating a CTAP2 command, this is then handled by the CTAP API provided in the original LionKey solution. The 
 
 \nl Management of the communication state machine is performed by periodic polling of the exchange status provided with the RFAL library with errors handled in accordance with the ISO specification.
