@@ -50,10 +50,14 @@ Although passkeys are often implemented as platform authenticators integrated in
 
 * {\sbf CTAP1 (formerly U2F):} Supports legacy FIDO U2F credentials.
 
-* {\sbf CTAP2:} The current standard for FIDO2, which improves user verification methods.
+* {\sbf CTAP2:} The current standard for FIDO2, which improves user verification methods, most notably by implementing a PIN/User Verification (UV) authentication model.
 
 \enditems
 
 \nl A {\sbf detailed breakdown} of this framework, including a detailed description of the CTAP protocol, can be {\sbf found} in the {\sbf work of Endler~\cite[endler-thesis]}, along with a more comprehensive insight into the problematic of hardware security keys, including the cryptographic mechanisms that are commonly used.
 
+\secc[ctap-relevancy] Post-Quantum Relevance of the CTAP Protocol
 
+To further extend Endler's overview, we would like to introduce the reader to the implications of quantum computing on the CTAP protocol.
+
+\nl The version of CTAP implemented in this project (CTAP 2.1) does not provide native post-quantum (PQ) security, as it relies on conventional public-key cryptographic primitives that could be compromised by sufficiently capable quantum adversaries. Nevertheless, the current protocol architecture is considered to be PQ ready. In particular, its PIN/UV authentication model requires active user verification and physical presence, while the protocol itself can be adapted to stronger cryptographic primitives without a fundamental redesign. Therefore, a full quantum-resistant operation could be achieved by replacing the current asymmetric mechanisms with post-quantum key encapsulation mechanisms and digital signature schemes, provided that such changes are introduced consistently across both CTAP and WebAuthn within the FIDO2 framework~\cite[cryptoeprint:2022/1029].
