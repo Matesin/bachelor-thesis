@@ -2,13 +2,13 @@
 
 {\sbf Passkeys} have become a {\sbf popular means of authentication} on the Internet. Along with more conventional means of passkeys, users are also adopting {\sbf hardware security keys} as a {\sbf safer way to store their credentials}. Hardware security keys may provide an additional layer of security compared to platform authenticators. They offer stronger isolation of private keys and ensure their non-exportability, thereby reducing the risk of credential compromise even if the host device is not trusted.
 
-\nl One such project is the {\sbf LionKey}, an open-source hardware security key developed at {\sbf CTU FEE} by {\sbf Ing.~Martin Endler}. The device is compliant with FIDO2 standards; however, it currently {\sbf supports only CTAP over USB} (CTAPHID). This means that the key cannot be used with devices that do not support USB-based communication, notably mobile phones.
+One such project is the {\sbf LionKey}, an open-source hardware security key developed at {\sbf CTU FEE} by {\sbf Ing.~Martin Endler}. The device is compliant with FIDO2 standards; however, it currently {\sbf supports only CTAP over USB} (CTAPHID). This means that the key cannot be used with devices that do not support USB-based communication, notably mobile phones.
 
 \sec[objective] Thesis Objective
 
 The objective of this thesis is to {\sbf extend} the {\sbf communication capabilities} of the LionKey hardware security key by {\sbf implementing an NFC-based communication} interface on top of the existing CTAPHID solution, in order to further improve user experience when using the authenticator.
 
-\nl The NFC interface is realized using the STEVAL-D25R3916B board, which is interfaced with the ST Nucleo-H533RE microcontroller in accordance with the original specifications of the LionKey project.
+The NFC interface is realized using the STEVAL-D25R3916B board, which is interfaced with the ST Nucleo-H533RE microcontroller in accordance with the original specifications of the LionKey project.
 
 \sec[structure] Thesis Structure
 

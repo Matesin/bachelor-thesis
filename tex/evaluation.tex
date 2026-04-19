@@ -6,21 +6,21 @@ This chapter describes how the correctness of the implementation was tested.
 
 The evaluation process was structured in two stages, corresponding to different layers of the NFC communication stack.
 
-\nl First, the ability of the device to correctly respond during the activation phase was verified. This included transmission of fundamental identification and protocol parameters, namely ATQA (SENS_RES), UID, SAK, and ATS. The tests were performed using an external NFC reader under controlled conditions, enabling detailed observation of the anti-collision and activation sequence. Successful completion of this stage confirms correct operation at the physical and protocol initialization layers as defined by ISO/IEC 14443 and the ISO-DEP protocol.
+ First, the ability of the device to correctly respond during the activation phase was verified. This included transmission of fundamental identification and protocol parameters, namely ATQA (SENS_RES), UID, SAK, and ATS. The tests were performed using an external NFC reader under controlled conditions, enabling detailed observation of the anti-collision and activation sequence. Successful completion of this stage confirms correct operation at the physical and protocol initialization layers as defined by ISO/IEC 14443 and the ISO-DEP protocol.
 
-\nl In the second stage, the communication capabilities of the device were evaluated. Both supported application layers, CTAP and NDEF URI handling, were tested. Interoperability testing was conducted using consumer mobile devices as well as personal computers. 
+ In the second stage, the communication capabilities of the device were evaluated. Both supported application layers, CTAP and NDEF URI handling, were tested. Interoperability testing was conducted using consumer mobile devices as well as personal computers. 
 
-\nl The mobile devices used for testing were multiple iPhone devices ranging from iPhone 11 to iPhone 15 with both iOS 18 and iOS 26, and a Samsung Galaxy S22+, representing the dominant mobile platforms, iOS and Android. Regarding personal computers, Apple does not allow the use of NFC security keys on Mac\urlnote{https://support.apple.com/en-us/102637}, therefore, the evaluation was conducted using a Windows device. 
+ The mobile devices used for testing were multiple iPhone devices ranging from iPhone 11 to iPhone 15 with both iOS 18 and iOS 26, and a Samsung Galaxy S22+, representing the dominant mobile platforms, iOS and Android. Regarding personal computers, Apple does not allow the use of NFC security keys on Mac\urlnote{https://support.apple.com/en-us/102637}, therefore, the evaluation was conducted using a Windows device. 
 
-\nl This allowed for evaluation under realistic usage conditions and comparison with results obtained from the external reader.
+ This allowed for evaluation under realistic usage conditions and comparison with results obtained from the external reader.
 
-\nl The evaluation considered not only the successful command processing, but also the correctness of the protocol, the latency of the response, and the overall success rate of communication exchanges. In addition, selected negative test cases involving unsupported or malformed APDU commands were performed to assess the robustness of the implementation. Particular attention was paid to timing constraints imposed by the ISO-DEP protocol, as these are critical for interoperability with mobile devices.
+ The evaluation considered not only the successful command processing, but also the correctness of the protocol, the latency of the response, and the overall success rate of communication exchanges. In addition, selected negative test cases involving unsupported or malformed APDU commands were performed to assess the robustness of the implementation. Particular attention was paid to timing constraints imposed by the ISO-DEP protocol, as these are critical for interoperability with mobile devices.
 
 \sec[transmission-test] Response Testing
 
 The basic communication parameters of the emulated card were verified using the \code{nfc-poll} utility from the \code{libnfc} library. The tool was used with an external NFC reader (ACS ACR122U) to observe the activation sequence.
 
-\nl The following values were obtained during polling:
+ The following values were obtained during polling:
 
 \begtt
 ATQA (SENS_RES): 00 44
@@ -31,11 +31,11 @@ ATS:             78 80 80 00
 
 The {\sbf ATQA} value (0x0044) indicates a Type A target using a single-size UID (4-byte) and participation in the anti-collision and selection procedure. The reported UID consists of four bytes: 5F 4C 4E 4B, which correspond to the ASCII sequence ``_LNK''. This static identifier was intentionally selected for testing and debugging purposes. In a production deployment, a unique identifier should be assigned to each hardware unit. 
 
-\nl The {\sbf SAK}  (\code{0x20}) signals that the device implements the ISO-DEP protocol. 
+ The {\sbf SAK}  (\code{0x20}) signals that the device implements the ISO-DEP protocol. 
 
-\nl The {\sbf ATS} sets the parameters of the upcoming transaction. The value of the lower nibble of the first byte, \code{0x7}{\sbf \code{8}}, represents FSCI (FSC Integer--8--means the FSC is  256 bytes). \code{0x80}, as the value of the second byte, represents the bit rate; in this case, it is \code{ISODEP_ATS_TA_SAME_D}, meaning that the same bit rate is expected in both directions. The upper nibble of the third byte specifies 8 as WFI and the lower nibble 0 as SFGI. 
+ The {\sbf ATS} sets the parameters of the upcoming transaction. The value of the lower nibble of the first byte, \code{0x7}{\sbf \code{8}}, represents FSCI (FSC Integer--8--means the FSC is  256 bytes). \code{0x80}, as the value of the second byte, represents the bit rate; in this case, it is \code{ISODEP_ATS_TA_SAME_D}, meaning that the same bit rate is expected in both directions. The upper nibble of the third byte specifies 8 as WFI and the lower nibble 0 as SFGI. 
 
-\nl Successful retrieval of these parameters demonstrates that the device correctly participates in the NFC-A activation sequence and exposes the protocol capabilities required for the operation of the Type~4 tag.
+ Successful retrieval of these parameters demonstrates that the device correctly participates in the NFC-A activation sequence and exposes the protocol capabilities required for the operation of the Type~4 tag.
 
 \midinsert
 \clabel[img-nfc-response]{NFC Card Details}
@@ -55,31 +55,31 @@ The testing of CTAP functionality demonstrated stable and consistent behavior ac
 \caption /f Device log of processing an APDU containing a CTAP_GETINFO command.
 \endinsert
 
-\nl For iOS and Windows devices, no deviations were observed from the expected behavior of the CTAP2 protocol, and the implementation exhibited complete interoperability with standard client platforms.
+ For iOS and Windows devices, no deviations were observed from the expected behavior of the CTAP2 protocol, and the implementation exhibited complete interoperability with standard client platforms.
 
-\nl In contrast, limitations were identified when testing on Android-based devices. Experimental evaluation indicates that the interaction is limited to the legacy U2F protocol (Universal Second Factor). While CTAP2 functionality was successfully verified when the LionKey device was connected via USB, attempts to establish CTAP2-based communication over NFC consistently failed. Instead, the Android system, upon receiving a response associated with the U2F protocol, issued commands consistent with this protocol, suggesting a fallback to legacy behavior in accordance with earlier FIDO Alliance specifications. Since LionKey only supports the CTAP2 standard, it is impossible to comply with Android devices at this point.
+ In contrast, limitations were identified when testing on Android-based devices. Experimental evaluation indicates that the interaction is limited to the legacy U2F protocol (Universal Second Factor). While CTAP2 functionality was successfully verified when the LionKey device was connected via USB, attempts to establish CTAP2-based communication over NFC consistently failed. Instead, the Android system, upon receiving a response associated with the U2F protocol, issued commands consistent with this protocol, suggesting a fallback to legacy behavior in accordance with earlier FIDO Alliance specifications. Since LionKey only supports the CTAP2 standard, it is impossible to comply with Android devices at this point.
 
-\nl These observations suggest that, as of April 2026, Android devices do not provide practical support for CTAP2 over NFC for external authenticators, effectively limiting NFC-based communication to U2F compatibility. Although Google introduced the full FIDO2 API for Android in 2025\urlnote{https://developers.google.com/identity/fido/android/native-apps}, this support primarily targets platform authenticators, and external authenticators connected via USB and NFC support remains vendor-specific. Since the LionKey implementation targets FIDO2 exclusively and does not implement backward compatibility with U2F, this platform constraint prevents successful interoperability with Android devices in the NFC use case.
+ These observations suggest that, as of April 2026, Android devices do not provide practical support for CTAP2 over NFC for external authenticators, effectively limiting NFC-based communication to U2F compatibility. Although Google introduced the full FIDO2 API for Android in 2025\urlnote{https://developers.google.com/identity/fido/android/native-apps}, this support primarily targets platform authenticators, and external authenticators connected via USB and NFC support remains vendor-specific. Since the LionKey implementation targets FIDO2 exclusively and does not implement backward compatibility with U2F, this platform constraint prevents successful interoperability with Android devices in the NFC use case.
 
 \seccc[latency-reliability] Latency and Reliability
 
 The response time was measured for the most computationally demanding CTAP command, \code{CTAP_CMD_MAKE_CREDENTIAL}. Across 50 consecutive trials, the average response time was 42~ms in the production mode and 270~ms in the debug mode, which is comfortably within the maximum reply time suggested by the FIDO Alliance of 800~ms. The significant increase in debug mode can be attributed primarily to logging overhead and reduced optimization levels, which introduce additional processing delays. 
 
-\nl Regarding reliability, it was observed that the initiating device does not consistently detect premature termination of an NFC session. Specifically, when the authenticator is removed from the field of the initiator during an ongoing authentication procedure, the device correctly transitions to an idle state. However, the client application continues to wait for a response and does not recover from the interrupted communication.
+ Regarding reliability, it was observed that the initiating device does not consistently detect premature termination of an NFC session. Specifically, when the authenticator is removed from the field of the initiator during an ongoing authentication procedure, the device correctly transitions to an idle state. However, the client application continues to wait for a response and does not recover from the interrupted communication.
 
-\nl As a consequence, subsequent authentication attempts cannot always be initiated, even though the user interface continues to indicate that NFC authentication is available. In this state, the NFC reader fails to re-establish communication with the authenticator, and recovery requires a full reset of the client context, typically by reloading the web page.
+ As a consequence, subsequent authentication attempts cannot always be initiated, even though the user interface continues to indicate that NFC authentication is available. In this state, the NFC reader fails to re-establish communication with the authenticator, and recovery requires a full reset of the client context, typically by reloading the web page.
 
-\nl It was found that the frequency of this issue depends on the browser used. When tested with Safari, the failure occurred consistently after premature session termination. In contrast, Chrome and Firefox exhibited more robust behavior, requiring a page reload in approximately 40\% of cases.
+ It was found that the frequency of this issue depends on the browser used. When tested with Safari, the failure occurred consistently after premature session termination. In contrast, Chrome and Firefox exhibited more robust behavior, requiring a page reload in approximately 40\% of cases.
 
-\nl These observations suggest limited robustness in session termination and error handling within the client-side NFC stack. However, it cannot be conclusively determined to what extent this behavior is caused by the browser, the underlying operating system, or the implementation of the authenticator.
+ These observations suggest limited robustness in session termination and error handling within the client-side NFC stack. However, it cannot be conclusively determined to what extent this behavior is caused by the browser, the underlying operating system, or the implementation of the authenticator.
 
 \secc[ndef-handling] NDEF Handling
 
 The NDEF functionality was evaluated using a URI record to verify correct Type~4 Tag operation and interoperability with common NFC-enabled devices. The implementation was tested across multiple platforms, including iOS and Android devices, as well as an external NFC reader.
 
-\nl In all the scenarios tested, the NDEF message was successfully detected and processed, resulting in a 100\% success rate \ in 50 of the tests conducted. The communication followed the standard Type~4 Tag access sequence defined by the NFC Forum, consisting of application selection, capability container access, and NDEF file retrieval.
+ In all the scenarios tested, the NDEF message was successfully detected and processed, resulting in a 100\% success rate \ in 50 of the tests conducted. The communication followed the standard Type~4 Tag access sequence defined by the NFC Forum, consisting of application selection, capability container access, and NDEF file retrieval.
 
-\nl More specifically, the observed APDU flow consisted of the following steps: 
+ More specifically, the observed APDU flow consisted of the following steps: 
 
 \begitems \style n
 * SELECT command for the NDEF application identifier
@@ -97,9 +97,9 @@ This sequence was executed consistently on all devices tested without deviation.
 \caption /f Device log of NDEF APDU communication.
 \endinsert
 
-\nl Response latency was measured at the APDU level in debug mode in 50 trials. The average response time was 25~ms for SELECT commands and 34~ms for READ BINARY commands. The increased latency for READ operations reflects the larger data payload and processing overhead associated with file retrieval. From the user perspective, no perceptible delay was observed during the interaction.
+ Response latency was measured at the APDU level in debug mode in 50 trials. The average response time was 25~ms for SELECT commands and 34~ms for READ BINARY commands. The increased latency for READ operations reflects the larger data payload and processing overhead associated with file retrieval. From the user perspective, no perceptible delay was observed during the interaction.
 
-\nl We also verified correct state machine behavior by manually sending APDUs containing both valid and invalid NDEF commands. This included checking proper handling of file selection and data access as well as handling of invalid APDUs. 
+ We also verified correct state machine behavior by manually sending APDUs containing both valid and invalid NDEF commands. This included checking proper handling of file selection and data access as well as handling of invalid APDUs. 
 
 \secc Use of CTAP on Real WebAuthn-enabled Websites
 
@@ -109,9 +109,9 @@ The implementation was further evaluated in real-world scenarios by it on WebAut
 \clabel[img-wa-flow-1]{Webauthn Authentication Flow (1)}
 \picheight = 60mm \cinspic ../images/wa-flow-merged-1.png
 \caption /f WebAuthn LionKey passkey registration flow via NFC on the iPhone.
+\endinsert
 
-\_vskip 5mm
-
+\midinsert
 \clabel[img-wa-flow-2]{Webauthn Authentication Flow (2)}
 \picheight = 60mm \cinspic ../images/wa-flow-merged-2.png
 \caption /f  WebAuthn LionKey passkey registration flow via NFC on the iPhone.
