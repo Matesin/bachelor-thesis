@@ -29,12 +29,13 @@ SAK (SEL_RES):   20
 ATS:             78 80 80 00
 \endtt
 
-The {\sbf ATQA} value (0x0044) indicates a Type A target using a single-size UID (4-byte) and participation in the anti-collision and selection procedure. The reported UID consists of four bytes: 5F 4C 4E 4B, which correspond to the ASCII sequence ``_LNK''. This static identifier was intentionally selected for testing and debugging purposes. In a production deployment, a unique identifier should be assigned to each hardware unit. 
+\begitems \style x
+* The {\sbf ATQA} value (0x0044) indicates a Type A target using a single-size UID (4-byte) and participation in the anti-collision and selection procedure. The reported UID consists of four bytes: 5F 4C 4E 4B, which correspond to the ASCII sequence ``_LNK''. This static identifier was intentionally selected for testing and debugging purposes. In a production deployment, a unique identifier should be assigned to each hardware unit. 
 
- The {\sbf SAK}  (\code{0x20}) signals that the device implements the ISO-DEP protocol. 
+*  The {\sbf SAK}  (\code{0x20}) signals that the device implements the ISO-DEP protocol. 
 
- The {\sbf ATS} sets the parameters of the upcoming transaction. The value of the lower nibble of the first byte, \code{0x7}{\sbf \code{8}}, represents FSCI (FSC Integer--8--means the FSC is  256 bytes). \code{0x80}, as the value of the second byte, represents the bit rate; in this case, it is \code{ISODEP_ATS_TA_SAME_D}, meaning that the same bit rate is expected in both directions. The upper nibble of the third byte specifies 8 as WFI and the lower nibble 0 as SFGI. 
-
+*  The {\sbf ATS} sets the parameters of the upcoming transaction. The value of the lower nibble of the first byte, \code{0x7}{\sbf \code{8}}, represents FSCI (FSC Integer--8--means the FSC is  256 bytes). \code{0x80}, as the value of the second byte, represents the bit rate; in this case, it is \code{ISODEP_ATS_TA_SAME_D}, meaning that the same bit rate is expected in both directions. The upper nibble of the third byte specifies 8 as WFI and the lower nibble 0 as SFGI. 
+\enditems
  Successful retrieval of these parameters demonstrates that the device correctly participates in the NFC-A activation sequence and exposes the protocol capabilities required for the operation of the Type~4 tag.
 
 \midinsert
