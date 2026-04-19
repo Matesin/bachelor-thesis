@@ -79,7 +79,15 @@ The NDEF functionality was evaluated using a URI record to verify correct Type~4
 
 \nl In all the scenarios tested, the NDEF message was successfully detected and processed, resulting in a 100\% success rate \ in 50 of the tests conducted. The communication followed the standard Type~4 Tag access sequence defined by the NFC Forum, consisting of application selection, capability container access, and NDEF file retrieval.
 
-\nl More specifically, the observed APDU flow consisted of the following steps: (i) SELECT command for the NDEF application identifier, (ii) SELECT command for the Capability Container (CC) file, (iii) READ BINARY command to retrieve the CC file, (iv) SELECT command for the NDEF file, and (v) READ BINARY command to retrieve the NDEF message. This sequence was executed consistently on all devices tested without deviation.
+\nl More specifically, the observed APDU flow consisted of the following steps: 
+
+\begitems \style n
+* SELECT command for the NDEF application identifier
+* SELECT command for the Capability Container (CC) file
+* READ BINARY command to retrieve the CC file 
+* SELECT command for the NDEF file 
+* READ BINARY command to retrieve the NDEF message. This sequence was executed consistently on all devices tested without deviation.
+\enditems
 
 \midinsert
 \clabel[img-ndef-handling]{NDEF Handling Log}
