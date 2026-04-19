@@ -29,7 +29,7 @@ SAK (SEL_RES):   20
 ATS:             78 80 80 00
 \endtt
 
-\nl The {\sbf ATQA} value (0x0044) indicates a Type A target using a single-size UID (4-byte) and participation in the anti-collision and selection procedure. The reported UID consists of four bytes: 5F 4C 4E 4B, which correspond to the ASCII sequence ``_LNK''. This static identifier was intentionally selected for testing and debugging purposes. In a production deployment, a unique identifier should be assigned to each hardware unit. 
+The {\sbf ATQA} value (0x0044) indicates a Type A target using a single-size UID (4-byte) and participation in the anti-collision and selection procedure. The reported UID consists of four bytes: 5F 4C 4E 4B, which correspond to the ASCII sequence ``_LNK''. This static identifier was intentionally selected for testing and debugging purposes. In a production deployment, a unique identifier should be assigned to each hardware unit. 
 
 \nl The {\sbf SAK}  (\code{0x20}) signals that the device implements the ISO-DEP protocol. 
 
@@ -89,7 +89,7 @@ The NDEF functionality was evaluated using a URI record to verify correct Type~4
 * READ BINARY command to retrieve the NDEF message.
 \enditems
 
-\nl This sequence was executed consistently on all devices tested without deviation.
+This sequence was executed consistently on all devices tested without deviation.
 
 \midinsert
 \clabel[img-ndef-handling]{NDEF Handling Log}

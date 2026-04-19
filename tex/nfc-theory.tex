@@ -34,7 +34,7 @@ In NFC communication, two roles are distinguished according to which device init
 \nl The device that responds to the initiator. Depending on the communication mode, it can passively modulate the initiator’s field or actively generate its own signal. Typical examples include contactless smart cards, NFC tags, or peer devices.
 \enditems
 
-\nl It is important to distinguish these roles from the physical ability to generate an electromagnetic field. Although the initiator is typically the field-generating device, this is not strictly required in all communication modes.
+It is important to distinguish these roles from the physical ability to generate an electromagnetic field. Although the initiator is typically the field-generating device, this is not strictly required in all communication modes.
 
 \nl NFC defines two communication modes based on how the electromagnetic field is generated and how the devices are powered: {\sbf active mode} and {\sbf passive mode}.
 
@@ -64,7 +64,7 @@ The NFC Forum defines {\sbf three} primary {\sbf operating modes} that determine
 
 \enditems
 
-\nl These operating modes build upon the previously described concepts of initiator and target roles, as well as active and passive communication modes. Their combination defines the functional behavior of NFC devices in real-world applications.
+These operating modes build upon the previously described concepts of initiator and target roles, as well as active and passive communication modes. Their combination defines the functional behavior of NFC devices in real-world applications.
 
 \sec[nfc-tag-types] Types of NFC Tags
 \secc[nfc-a] NFC-A
@@ -81,7 +81,7 @@ The NFC Forum defines {\sbf three} primary {\sbf operating modes} that determine
 
 \secc[nfc-f] NFC-F
 
-NFC-F is based on the JIS X 6319-4 specification and was originally developed by Sony under the commercial name FeliCa. Unlike NFC-A and NFC-B, NFC-F is not strictly derived from the ISO/IEC 14443 family, but instead follows a different protocol structure defined in Japanese industrial standards.
+{\sbf NFC-F} is based on the JIS X 6319-4 specification and was originally developed by Sony under the commercial name FeliCa. Unlike NFC-A and NFC-B, NFC-F is not strictly derived from the ISO/IEC 14443 family, but instead follows a different protocol structure defined in Japanese industrial standards.
 
 \nl A key distinguishing feature of NFC-F is its higher data rates, typically 212 kbit/s or 424 kbit/s, which makes it suitable for latency-sensitive applications. The technology is used primarily in Japan, particularly in transportation systems, contactless payment infrastructures, and access control solutions.
 
@@ -111,13 +111,13 @@ The {\sbf ISO-DEP} (ISO Data Exchange Protocol), specified in ISO/IEC~14443-4~\c
 
 \midinsert \clabel[table-ats]{ATS message structure}
 \ctable{c|c|c|c|c|c|c}{
-\hfil TL & T0 & TA(1) & TB(1) & TC(1) & T1 & \(T_k\) \crl \tskip5pt
+\hfil TL & T0 & TA(1) & TB(1) & TC(1) & T1 & $T_k$ \crl \tskip5pt
  & & \multispan3 interface \vrule & & historical bytes \crl
 }
 \caption/t ATS structure.
 \endinsert
 
-\nl The interface bytes can contain these values: 
+The interface bytes can contain these values: 
 
 \begitems
 * {\sbf Frame Waiting Time (FWT)} 
@@ -134,7 +134,7 @@ The {\sbf ISO-DEP} (ISO Data Exchange Protocol), specified in ISO/IEC~14443-4~\c
 \nl Optional data included in the ATS, providing additional information about the capabilities of the card.
 \enditems
 
-\nl Correct configuration and handling of these parameters is essential to ensure compatibility with readers and mobile devices. Strict adherence to timing constraints, such as the frame waiting time, is required to prevent premature session termination.
+Correct configuration and handling of these parameters is essential to ensure compatibility with readers and mobile devices. Strict adherence to timing constraints, such as the frame waiting time, is required to prevent premature session termination.
 
 \seccc[nfc-iso-dep-data] Data Exchange
 
@@ -200,7 +200,7 @@ R-APDU: 46 49 44 4F 5F 32 5F 30   90 00
         \_______ Data ________/ \SW1 SW2/
 \endtt
 
-\nl In this example, the C-APDU consists of the following fields: CLA~=~\code{0x00} (interindustry class byte - a standard entry point for commands), INS~=~\code{0xA4} (SELECT instruction), P1~=~\code{0x04} (selection by name) and P2~=~\code{0x00}. The field Lc~=~\code{0x08} specifies the length of the data field, which contains the 8-byte FIDO application identifier (AID) (\code{A0 00 00 06 47 2F 00 01}). Upon processing this message, the device responds with an R-APDU.
+In this example, the C-APDU consists of the following fields: CLA~=~\code{0x00} (interindustry class byte - a standard entry point for commands), INS~=~\code{0xA4} (SELECT instruction), P1~=~\code{0x04} (selection by name) and P2~=~\code{0x00}. The field Lc~=~\code{0x08} specifies the length of the data field, which contains the 8-byte FIDO application identifier (AID) (\code{A0 00 00 06 47 2F 00 01}). Upon processing this message, the device responds with an R-APDU.
 
 \nl The R-APDU contains the response data followed by the status word. The data field corresponds to the ASCII string ``FIDO\_2\_0'', while the status word~\code{0x9000} indicates successful execution of the command.
 
