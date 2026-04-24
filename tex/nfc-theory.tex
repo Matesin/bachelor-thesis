@@ -167,7 +167,7 @@ The NFC-A state machine has the following States:
 
 \secc[nfc-a-anticollision] NFC-A Initialization and Anticollision
 
-NFC-A uses a {\sbf bit-frame anticollision} method based on binary tree traversal. Since multiple PICCs may respond simultaneously to a REQA or WUPA command, their signals can overlap and corrupt each other - this is called a {\sbf collision}. The anticollision loop resolves collisions iteratively by narrowing down the UID of each card in the field.
+NFC-A uses a {\sbf bit-frame anticollision} method based on binary tree traversal. Since multiple PICCs may respond simultaneously to a REQA or WUPA command, their signals can overlap and corrupt each other, this is called a {\sbf collision}. The anticollision loop resolves collisions iteratively by narrowing down the UID of each card in the field. This overview focuses solely on the NFC-A procedures, although the standard also specifies behavior for hybrid tags supporting both the NFC-A and NFC-B types.
 
 \seccc[nfc-a-polling] Polling
 
@@ -179,6 +179,14 @@ Upon receiving a valid REQA or WUPA, all eligible PICCs respond simultaneously w
 * {\sbf Bit frame anticollision indicator} - which bit position is used as the anticollision entry point in the binary tree traversal
 * {\sbf UID size indicator} - whether the UID is 4, 7, or 10 bytes, determining how many cascade levels the anticollision loop must traverse
 \enditems
+
+\midinsert \clabel[table-atqa]{ATQA message structure}
+\ctable{c|c}{
+\hfil Byte 1 & Byte 2 \crl \tskip5pt
+ Bit frame anticollision indicator & UID size indicator \crl
+}
+\caption/t ATQA structure.
+\endinsert
 
 If multiple PICCs respond in the same slot, their ATQA frames collide at the bit level. The PCD detects this and proceeds with the anticollision loop to isolate individual cards.
 
@@ -212,6 +220,33 @@ The following sequence repeats for each required cascade level:
 * The addressed PICC responds with a {\sbf SAK (Select AcKnowledge)}, confirming selection. The SAK also indicates whether further cascade levels are required (bit 2 of SAK set) or whether the full UID has been resolved (bit 2 cleared).
 
 \enditems
+
+\midinsert \clabel[table-anticollision]{ANTICOLLISION command structure}
+\ctable{c|c|c}{
+\hfil SEL & NVB & UID CLn (partial) \crl \tskip5pt
+ CL1 (93h) / CL2 (95h) / CL3 (97h) & upper nibble: byte count, lower nibble: bit count & 0--4 bytes depending on NVB \crl
+}
+\caption/t ANTICOLLISION command structure. NVB upper nibble ranges from 2--7 (byte count including SEL and NVB), lower nibble 0--7 (additional valid bits).
+
+\midinsert \clabel[table-sak]{SAK message structure}
+\ctable{c|c|c}{
+\hfil SAK byte & CRC1 & CRC2 \crl \tskip5pt
+ bit 2: cascade incomplete, bit 5: ISO-DEP support & & \crl
+}
+\caption/t SAK structure. If bit~2 is set, further cascade levels remain. If bit~5 is set, the PICC supports ISO-DEP and awaits a RATS command.
+\endinsert
+
+\midinsert \clabel[table-sak-bits]{SAK bit interpretation}
+\ctable{c|c|c}{
+\hfil Bit 2 & Bit 5 & Meaning \crl \tskip5pt
+ 1 & -- & UID incomplete, further cascade levels required \crl \tskip5pt
+ 0 & 0  & UID complete, proprietary protocol \crl \tskip5pt
+ 0 & 1  & UID complete, ISO-DEP supported \crl
+}
+\caption/t SAK bit~2 and bit~5 interpretation.
+\endinsert
+
+\endinsert
 
 Once all cascade levels are resolved and the final SAK confirms a complete UID, the PICC transitions to {\sbf ACTIVE} state. If the SAK additionally indicates ISO-DEP support (bit 5 set), the PCD may proceed with a RATS command to initiate the ISO 14443-4 protocol. Otherwise, the PICC continues with its own proprietary protocol.
 
