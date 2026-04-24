@@ -49,6 +49,12 @@ It is important to distinguish these roles from the physical ability to generate
 \nl In passive mode, only the initiator generates the RF field. The target does not have its own power source and utilizes energy harvesting. Data transmission from the target is achieved through load modulation of the existing carrier field. This mode is characteristic of typical NFC-A and NFC-B interactions, such as communication with contactless smart cards and NFC tags.
 \enditems
 
+\midinsert
+\clabel[img-nfc-stack]{NFC Protocol Stack}
+\picheight = 80mm \cinspic ../images/NFC_Protocol_Stack.png
+\caption /f NFC Protocol Stack~\cite[nfc-protocol-stack]
+\endinsert
+
 \sec [nfc-operating-modes] Operating Modes
 
 The NFC Forum defines {\sbf three} primary {\sbf operating modes} that determine the role and behavior of a device within a communication session.
@@ -103,12 +109,6 @@ The asymmetric modulation scheme and lower modulation index result in {\sbf impr
 
 \nl However, due to its regional focus and protocol differences, NFC-F is not universally supported by all NFC readers. Consequently, its applicability in general-purpose NFC implementations is limited and it is mentioned in this overview purely for completeness.
 
-\midinsert
-\clabel[img-nfc-stack]{NFC Protocol Stack}
-\picheight = 80mm \cinspic ../images/NFC_Protocol_Stack.png
-\caption /f NFC Protocol Stack~\cite[nfc-protocol-stack]
-\endinsert
-
 \sec[nfc-a-state-machine] NFC-A State Machine
 
 NFC-A anticollision and activation sequence has a defined state machine behavior. This state machine must be respected for the correct initialization of the communication and protocol flow. 
@@ -157,6 +157,12 @@ The NFC-A state machine has the following States:
 \nl The PICC operates under the ISO-DEP protocol, initiated by a successful RATS/ATS exchange. All subsequent communication follows the negotiated parameters (FWT, FSC, etc.). The card remains in this state until the RF field is removed or a protocol-level untick is issued, returning it to HALT or IDLE, respectively.
 
 \enditems
+
+\midinsert
+\clabel[img-nfc-stack]{NFC Initialization Flow}
+\picheight = 60mm \cinspic ../images/nfc-init-flow.png
+\caption /f PlantUML diagram of the NFC initialization flow.
+\endinsert
 
 
 \secc[nfc-a-anticollision] NFC-A Initialization and Anticollision
