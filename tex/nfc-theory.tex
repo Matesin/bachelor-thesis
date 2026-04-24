@@ -2,7 +2,7 @@
 
 This chapter introduces the principles of the {\sbf Near Field Communication (NFC)} technology. Due to the extensive nature of NFC standardization, the {\sbf main focus} is placed on those of its {\sbf mechanisms} that are {\sbf relevant} to the presented {\sbf implementation}, specifically {\sbf NFC Type A tags} and the {\sbf ISO-DEP protocol}.
 
-Other technologies within the NFC ecosystem are discussed only briefly to provide context and completeness.
+\nl Other technologies within the NFC ecosystem are discussed only briefly to provide context and completeness.
 
 \sec[nfc-intro] Introduction to NFC
 
@@ -10,9 +10,9 @@ Other technologies within the NFC ecosystem are discussed only briefly to provid
 
 NFC operates at a {\sbf carrier frequency (fc) of 13.56~MHz} and is based on {\sbf inductive coupling} between {\sbf loop antennas}. In this mechanism, defined in ISO/IEC 14443-2, an active device generates an electromagnetic field, while a passive device modulates this field to transmit data.
 
-The NFC technology is standardized by international organizations, primarily by joint standards of the  International Organization for Standardization (ISO) and the International Electrotechnical Commission (IEC), abbreviated as ISO/IEC, and the NFC Forum\urlnote{https://nfc-forum.org}. The key specifications include ISO/IEC~14443, which defines proximity card communication (used in NFC-A and NFC-B), and ISO/IEC~18092, which specifies peer-to-peer communication. In addition, the NFC Forum defines higher-level protocols and data formats to ensure interoperability across devices.
+\nl The NFC technology is standardized by international organizations, primarily by joint standards of the  International Organization for Standardization (ISO) and the International Electrotechnical Commission (IEC), abbreviated as ISO/IEC, and the NFC Forum\urlnote{https://nfc-forum.org}. The key specifications include ISO/IEC~14443, which defines proximity card communication (used in NFC-A and NFC-B), and ISO/IEC~18092, which specifies peer-to-peer communication. In addition, the NFC Forum defines higher-level protocols and data formats to ensure interoperability across devices.
 
-NFC supports three primary operating modes: reader/writer mode, card emulation mode, and peer-to-peer mode. From the perspective of this thesis, card emulation mode is of particular importance, as it allows the device to behave as a contactless smart card and participate in ISO-DEP communication with an external reader.
+\nl NFC supports three primary operating modes: reader/writer mode, card emulation mode, and peer-to-peer mode. From the perspective of this thesis, card emulation mode is of particular importance, as it allows the device to behave as a contactless smart card and participate in ISO-DEP communication with an external reader.
 
 \sec[nfc-device-types] Device Types
 
@@ -38,7 +38,7 @@ In NFC communication, two roles are distinguished according to which device init
 
 It is important to distinguish these roles from the physical ability to generate an electromagnetic field. Although the initiator is typically the field-generating device, this is not strictly required in all communication modes.
 
-NFC defines two communication modes based on how the electromagnetic field is generated and how the devices are powered: {\sbf active mode} and {\sbf passive mode}.
+\nl NFC defines two communication modes based on how the electromagnetic field is generated and how the devices are powered: {\sbf active mode} and {\sbf passive mode}.
 
 \begitems
 
@@ -98,7 +98,7 @@ The asymmetric modulation scheme and lower modulation index result in {\sbf impr
 
 {\sbf NFC-F} is based on the JIS X 6319-4 specification and was originally developed by Sony under the commercial name FeliCa. Unlike NFC-A and NFC-B, NFC-F is not strictly derived from the ISO/IEC 14443 family, but instead follows a different protocol structure defined in Japanese industrial standards.
 
-A key distinguishing feature of NFC-F is its higher data rates, typically 212 kbit/s or 424 kbit/s, which makes it suitable for latency-sensitive applications. The technology is used primarily in Japan, particularly in transportation systems, contactless payment infrastructures, and access control solutions.
+\nl A key distinguishing feature of NFC-F is its higher data rates, typically 212 kbit/s or 424 kbit/s, which makes it suitable for latency-sensitive applications. The technology is used primarily in Japan, particularly in transportation systems, contactless payment infrastructures, and access control solutions.
 
 However, due to its regional focus and protocol differences, NFC-F is not universally supported by all NFC readers. Consequently, its applicability in general-purpose NFC implementations is limited and it is mentioned in this overview purely for completeness.
 
@@ -213,7 +213,7 @@ The {\sbf ISO-DEP} (ISO Data Exchange Protocol), specified in ISO/IEC~14443-4~\c
 
 \seccc[nfc-iso-dep-activation] Activation and Parameter Negotiation
 
-Before data exchange can begin, ISO-DEP requires an activation phase in which the initiator selects the target and negotiates communication parameters. This is performed using the RATS (Request for Answer To Select) and ATS (Answer To Select) mechanism.
+\nl Before data exchange can begin, ISO-DEP requires an activation phase in which the initiator selects the target and negotiates communication parameters. This is performed using the RATS (Request for Answer To Select) and ATS (Answer To Select) mechanism.
 
 First, the reader sends a RATS (Request for Answer to Select) command. RATS is a 2-byte command consisting of a fixed command byte (E0) and a parameter proposal byte (PP).
 
@@ -236,7 +236,7 @@ The command byte E0 is fixed; its upper 4 bits encode Frame Size for proximity c
 \caption/t RATS structure.
 \endinsert
 
-The ATS response consists of a total length value (TL), format byte (T0), optional interface bytes (TA, TB, TC) and optional Historical Bytes (up to 15 bytes). These fields define key communication parameters, including timing constraints and frame sizes.
+\nl The ATS response consists of a total length value (TL), format byte (T0), optional interface bytes (TA, TB, TC) and optional Historical Bytes (up to 15 bytes). These fields define key communication parameters, including timing constraints and frame sizes.
 
 \midinsert \clabel[table-ats]{ATS message structure}
 \ctable{c|c|c|c|c|c|c|c|c}{
@@ -267,19 +267,19 @@ Correct configuration and handling of these parameters is essential to ensure co
 
 \seccc[nfc-iso-dep-data] Data Exchange
 
-Communication in {\sbf ISO-DEP} is organized into protocol data units (blocks), which are exchanged between the initiator and the target. Three types of blocks are defined: {\sbf I-Blocks} to carry application data, {\sbf R-Blocks} for acknowledgments and retransmission requests, and {\sbf S-Blocks} for control operations such as waiting time extension or protocol deactivation. This structure ensures reliable communication even in the presence of transmission errors.
+\nl Communication in {\sbf ISO-DEP} is organized into protocol data units (blocks), which are exchanged between the initiator and the target. Three types of blocks are defined: {\sbf I-Blocks} to carry application data, {\sbf R-Blocks} for acknowledgments and retransmission requests, and {\sbf S-Blocks} for control operations such as waiting time extension or protocol deactivation. This structure ensures reliable communication even in the presence of transmission errors.
 
 \seccc[nfc-apdu] APDU
 
-ISO-DEP serves as the transport layer for {\sbf Application Protocol Data Units (APDUs)}, which implement a command–response communication model. APDUs are a standardized data format used in smart card systems for structured information exchange defined by ISO/IEC 7816-4.
+\nl ISO-DEP serves as the transport layer for {\sbf Application Protocol Data Units (APDUs)}, which implement a command–response communication model. APDUs are a standardized data format used in smart card systems for structured information exchange defined by ISO/IEC 7816-4.
 
-In this model, the initiator sends a {\sbf command APDU (C-APDU)}, and the target responds with a {\sbf response APDU (R-APDU)}. This abstraction allows higher-level protocols, including smart card applications and CTAP over NFC, to operate independently of the underlying transmission mechanism while relying on ISO-DEP for reliable delivery.
+\nl In this model, the initiator sends a {\sbf command APDU (C-APDU)}, and the target responds with a {\sbf response APDU (R-APDU)}. This abstraction allows higher-level protocols, including smart card applications and CTAP over NFC, to operate independently of the underlying transmission mechanism while relying on ISO-DEP for reliable delivery.
 
-A command APDU (C-APDU) consists of a header (CLA, INS, P1, P2) and an optional payload defined by the fields Lc (length of command data) and Le (expected length of response data). The response APDU (R-APDU) may contain response data and is always terminated by a two-byte status word (SW1, SW2), indicating the result of the operation.
+\nl A command APDU (C-APDU) consists of a header (CLA, INS, P1, P2) and an optional payload defined by the fields Lc (length of command data) and Le (expected length of response data). The response APDU (R-APDU) may contain response data and is always terminated by a two-byte status word (SW1, SW2), indicating the result of the operation.
 
-APDUs can be encoded in short or extended format. In the short format, the length fields are limited to one byte, allowing payloads of up to 255 bytes. The extended format uses two-byte length fields, enabling payloads of up to 65,535 bytes.
+\nl APDUs can be encoded in short or extended format. In the short format, the length fields are limited to one byte, allowing payloads of up to 255 bytes. The extended format uses two-byte length fields, enabling payloads of up to 65,535 bytes.
 
-In the short format, the C-APDU consists of the mentioned 4-byte header followed by the optional fields Lc, Data (0–255 bytes) and Le, where both Lc and Le are encoded using a single byte.
+\nl In the short format, the C-APDU consists of the mentioned 4-byte header followed by the optional fields Lc, Data (0–255 bytes) and Le, where both Lc and Le are encoded using a single byte.
 
 \midinsert
 \clabel[table-apdu-short-layout]{Short C-APDU byte layout}
@@ -301,7 +301,7 @@ In the extended format, the presence of the leading \code{0x00} byte indicates e
 \caption/t Byte-level structure of extended C-APDUs.
 \endinsert
 
-Response APDUs consist of an optional data field followed by a mandatory two-byte status word (SW1, SW2). 
+\nl Response APDUs consist of an optional data field followed by a mandatory two-byte status word (SW1, SW2).
 
 \midinsert
 \clabel[table-rapdu-general]{R-APDU structure}
@@ -312,7 +312,7 @@ Response APDUs consist of an optional data field followed by a mandatory two-byt
 \caption/t General structure of a R-APDU.
 \endinsert
 
-The practical structure of APDU communication can be illustrated on the {\sbf following example}: 
+\nl The practical structure of APDU communication can be illustrated on the {\sbf following example}:
 
 \midinsert
 \clabel[img-fido-select]{FIDO Select Log}
@@ -331,23 +331,23 @@ R-APDU: 46 49 44 4F 5F 32 5F 30   90 00
 
 In this example, the C-APDU consists of the following fields: CLA~=~\code{0x00} (interindustry class byte - a standard entry point for commands), INS~=~\code{0xA4} (SELECT instruction), P1~=~\code{0x04} (selection by name) and P2~=~\code{0x00}. The field Lc~=~\code{0x08} specifies the length of the data field, which contains the 8-byte FIDO application identifier (AID) (\code{A0 00 00 06 47 2F 00 01}). Upon processing this message, the device responds with an R-APDU.
 
-The R-APDU contains the response data followed by the status word. The data field corresponds to the ASCII string ``FIDO\_2\_0'', while the status word~\code{0x9000} indicates successful execution of the command.
+\nl The R-APDU contains the response data followed by the status word. The data field corresponds to the ASCII string ``FIDO\_2\_0'', while the status word~\code{0x9000} indicates successful execution of the command.
 
 \seccc[nfc-chaining-difference] Chaining mechanisms
 
-Within ISO-DEP, APDUs are transported using I-Blocks. Since the maximum size of a single ISO-DEP frame is limited by the negotiated frame size, APDUs exceeding this size must be fragmented. This is achieved through {\sbf ISO-DEP chaining}, where a single APDU is split across multiple I-Blocks and reassembled by the receiving side.
+\nl Within ISO-DEP, APDUs are transported using I-Blocks. Since the maximum size of a single ISO-DEP frame is limited by the negotiated frame size, APDUs exceeding this size must be fragmented. This is achieved through {\sbf ISO-DEP chaining}, where a single APDU is split across multiple I-Blocks and reassembled by the receiving side.
 
-In addition to transport-level fragmentation, large responses may also be handled at the application level. In the case of short APDUs, the response length is limited by the value of the Le field. If the response exceeds this limit, it can be delivered in multiple steps using the status word mechanism (e.g., SW1~=~\code{0x61}), where the client issues the GET RESPONSE command to retrieve the remaining data.
+\nl In addition to transport-level fragmentation, large responses may also be handled at the application level. In the case of short APDUs, the response length is limited by the value of the Le field. If the response exceeds this limit, it can be delivered in multiple steps using the status word mechanism (e.g., SW1~=~\code{0x61}), where the client issues the GET RESPONSE command to retrieve the remaining data.
 
-The two chaining mechanisms operate at different layers: ISO-DEP chaining ensures reliable transmission of a single APDU over multiple frames, while application-level response handling enables the transfer of data exceeding the limits of the APDU format itself.
+\nl The two chaining mechanisms operate at different layers: ISO-DEP chaining ensures reliable transmission of a single APDU over multiple frames, while application-level response handling enables the transfer of data exceeding the limits of the APDU format itself.
 
 \secc[nfc-nfc-dep] NFC-DEP
 
 The {\sbf NFC-DEP} (NFC Data Exchange Protocol), defined in ISO/IEC~18092, is designed for peer-to-peer communication between two {\sbf active} NFC devices. Unlike ISO-DEP, which follows a reader–card model, NFC-DEP enables symmetric communication, allowing both devices to alternate between initiator and target roles.
 
-In contrast to ISO-DEP, {\sbf NFC-DEP does not utilize APDUs} and does not follow a strict command–response model. Instead, communication is based on {\sbf message-oriented data exchange}, making it more suitable for peer-to-peer scenarios rather than smart card emulation.
+\nl In contrast to ISO-DEP, {\sbf NFC-DEP does not utilize APDUs} and does not follow a strict command–response model. Instead, communication is based on {\sbf message-oriented data exchange}, making it more suitable for peer-to-peer scenarios rather than smart card emulation.
 
-For this reason, NFC-DEP is {\sbf not applicable} to the desired goal of this thesis, as FIDO2 authentication over NFC relies on APDU-based communication provided by ISO-DEP.
+\nl For this reason, NFC-DEP is {\sbf not applicable} to the desired goal of this thesis, as FIDO2 authentication over NFC relies on APDU-based communication provided by ISO-DEP.
 
 
 
