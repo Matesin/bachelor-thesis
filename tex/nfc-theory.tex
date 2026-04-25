@@ -75,7 +75,7 @@ These operating modes build upon the previously described concepts of initiator 
 \sec[nfc-rf-technologies] NFC RF Technologies
 \secc[nfc-a] NFC-A
 
-{\sbf NFC-A} is based on ISO/IEC 14443 Type A. In typical NFC-A communication, initialization and anticollision are performed at 106 kbit/s (fc/128). Higher bit rates may be negotiated later and may reach speeds up to 27.12 Mbit/s (2fc).
+{\sbf NFC-A} is based on ISO/IEC 14443 Type A. In typical NFC-A communication, initialization and anticollision are performed at 106 kbit/s (fc/128). In theory, the specification allows speeds up to 27.12 Mbit/s (2fc) after activation. Hovewer, 
 
 \nl {\sbf Encoding and Modulation:} NFC-A employs {\sbf Miller (delay) encoding}, a line code where logical bits are represented by time-dependent transitions in signal amplitude. This encoding improves robustness against noise and enables reliable clock synchronization between reader and card.
 The encoded signal then modulates the RF carrier using different schemes depending on transmission speed:
@@ -89,6 +89,7 @@ The encoded signal then modulates the RF carrier using different schemes dependi
 \secc[nfc-b] NFC-B
 
 {\sbf NFC-B} is based on ISO/IEC 14443 Type B. Initialization and anticollision operate at 106 kbit/s, with a maximum data exchange speed of 6.78 Mbit/s (fc/2), lower than NFC-A's maximum.
+
 {\sbf Encoding and Modulation:} NFC-B uses {\sbf NRZ-L (Non-Return-to-Zero Level)} encoding, where high and low amplitude levels directly represent logical 1 and 0 without returning to zero between bits.
 Transmission is {\sbf asymmetric}:
 \begitems
@@ -130,28 +131,28 @@ The NFC-A state machine has the following States:
 
 \begitems
 
-* POWER-OFF 
+* {\sbf POWER-OFF}
 \nl The PICC is not in an RF field exceeding Hmin. Communication is not possible. The transition to IDLE occurs when the RF field strength exceeds Hmin.
 
-* IDLE 
+* {\sbf IDLE}
 \nl The PICC is powered by the RF field but has not yet been addressed. It responds only to REQA or WUPA commands. A valid REQA or WUPA transitions the card to READY.
 
-* READY 
+* {\sbf READY}
 \nl The PICC has responded to REQA or WUPA. The anticollision loop begins here: the PCD issues ANTICOLLISION commands to isolate the card's UID, then a SELECT command to uniquely address it. A successful SELECT transitions the card to ACTIVE. A failed SELECT or collision returns the card to IDLE.
 
-* READY$^*$ 
+* {\sbf READY$^*$}
 \nl Functionally identical to READY, but entered exclusively from HALT via WUPA. The distinction ensures that the PCD can track whether a card was freshly powered or previously halted. A successful SELECT transitions the card to ACTIVE$^*$.
 
-* ACTIVE 
+* {\sbf ACTIVE}
 \nl The PICC has been selected by its full UID and is ready to communicate. If the card supports ISO-DEP~\ref[nfc-iso-dep], it awaits a RATS command to enter the PROTOCOL state. Otherwise, it continues with its proprietary protocol. An HLTA command transitions the card to HALT.
 
-* ACTIVE$^*$
+* {\sbf ACTIVE$^*$}
 \nl Functionally identical to ACTIVE, but entered from READY$^*$. The distinction allows the PCD to identify cards that were reactivated from HALT, which may be relevant for session management. A HLTA command returns the card to HALT.
 
-* HALT 
+* {\sbf HALT}
 \nl The PICC is suspended and ignores all commands except WUPA. This allows the PCD to selectively wake specific cards in a multi-card scenario. A valid WUPA transitions the card to READY$^*$.
 
-* PROTOCOL 
+* {\sbf PROTOCOL}
 \nl The PICC operates under the ISO-DEP protocol, initiated by a successful RATS/ATS exchange. All subsequent communication follows the negotiated parameters (FWT, FSC, etc.). The card remains in this state until the RF field is removed or a DESELECT command is issued, returning it to HALT or IDLE, respectively.
 
 \enditems
@@ -335,7 +336,7 @@ ISO-DEP serves as the transport layer for {\sbf Application Protocol Data Units 
 \caption/t Byte-level structure of short C-APDUs.
 \endinsert
 
-In the extended format, the presence of the leading \code{0x00} byte indicates extended length encoding, followed by two-byte length fields for Lc and Le. The exact position of Le depends on the APDU case.
+\nl In the extended format, the presence of the leading \code{0x00} byte indicates extended length encoding, followed by two-byte length fields for Lc and Le. The exact position of Le depends on the APDU case.
 
 \midinsert
 \clabel[table-apdu-extended-layout]{Extended C-APDU byte layout}
@@ -388,7 +389,7 @@ Within ISO-DEP, APDUs are transported using I-Blocks. Since the maximum size of 
 
 \secc[nfc-nfc-dep] NFC-DEP
 
-The {\sbf NFC-DEP} (NFC Data Exchange Protocol), defined in ISO/IEC~18092, is designed for peer-to-peer communication between two {\sbf active} NFC devices. Unlike ISO-DEP, which follows a reader–card model, NFC-DEP enables symmetric communication, allowing both devices to alternate between initiator and target roles.
+The {\sbf NFC-DEP} (NFC Data Exchange Protocol), defined in~\cite[iso18092], is designed for peer-to-peer communication between two {\sbf active} NFC devices. Unlike ISO-DEP, which follows a reader–card model, NFC-DEP enables symmetric communication, allowing both devices to alternate between initiator and target roles.
 
 \nl In contrast to ISO-DEP, {\sbf NFC-DEP does not utilize APDUs} and does not follow a strict command–response model. Instead, communication is based on {\sbf message-oriented data exchange}, making it more suitable for peer-to-peer scenarios rather than card emulation.
 
