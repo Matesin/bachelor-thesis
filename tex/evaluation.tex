@@ -58,7 +58,7 @@ The testing of CTAP functionality demonstrated stable and consistent behavior ac
 
 \nl For iOS and Windows devices, no deviations were observed from the expected behavior of the CTAP2 protocol, and the implementation exhibited complete interoperability with standard client platforms.
 
-\nl In contrast, limitations were identified when testing on Android-based devices. Experimental evaluation indicates that the interaction is limited to the legacy U2F protocol (Universal Second Factor). While CTAP2 functionality was successfully verified when the LionKey device was connected via USB, attempts to establish CTAP2-based communication over NFC consistently failed. Instead, the Android system, upon receiving a response associated with the U2F protocol, issued commands consistent with this protocol, suggesting a fallback to legacy behavior in accordance with earlier FIDO Alliance specifications. Since LionKey only supports the CTAP2 standard, it is impossible to comply with Android devices at this point.
+\nl The tests conducted on the evaluated Samsung Galaxy S22+ did not demonstrate successful CTAP2 with respect to NFC interoperability. This may reflect the limitations of the platform, the vendor, or the software-stack rather than the universal Android ecosystem. Experimental evaluation indicates that the interaction is limited to the legacy U2F protocol (Universal Second Factor). While CTAP2 functionality was successfully verified when the LionKey device was connected via USB, attempts to establish CTAP2-based communication over NFC consistently failed. Instead, the Android system, upon receiving a response associated with the U2F protocol, issued commands consistent with this protocol, suggesting a fallback to legacy behavior in accordance with earlier FIDO Alliance specifications. Since LionKey only supports the CTAP2 standard, it is impossible to comply with Android devices at this point.
 
 \nl These observations suggest that, as of April 2026, Android devices do not provide practical support for CTAP2 over NFC for external authenticators, effectively limiting NFC-based communication to U2F compatibility. Although Google introduced the full FIDO2 API for Android in 2025\urlnote{https://developers.google.com/identity/fido/android/native-apps}, this support primarily targets platform authenticators, and external authenticators connected via USB and NFC support remains vendor-specific. Since the LionKey implementation targets FIDO2 exclusively and does not implement backward compatibility with U2F, this platform constraint prevents successful interoperability with Android devices in the NFC use case.
 
@@ -104,7 +104,7 @@ This sequence was executed consistently on all devices tested without deviation.
 
 \secc Use of CTAP on Real WebAuthn-enabled Websites
 
-The implementation was further evaluated in real-world scenarios by it on WebAuthn-enabled websites. The authentication process was verified by authenticating on the WebAuthn demo and on Google.
+The implementation was further evaluated in real-world scenarios by testing it on WebAuthn-enabled websites. The authentication process was verified by authenticating on the WebAuthn demo and on Google.
 
 \midinsert
 \clabel[img-wa-flow-1]{Webauthn Authentication Flow (1)}
