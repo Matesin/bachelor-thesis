@@ -8,11 +8,11 @@ After evaluating the available NFC operating modes and specifications, it become
 
 \nl In the ideal case, card emulation based on Secure Element (SE) would be used. However, this is not feasible with respect to the existing LionKey hardware architecture. This approach requires the presence of a dedicated SE capable of isolated execution and secure key storage, which is not available in the current design. Consequently, the implementation must be based on host-based card emulation, where all protocol handling is performed by the microcontroller (MCU).
 
-\nl The required functionality is achieved most appropriately through the emulation of a Type 4 NFC Forum Tag. In contrast to simpler tag types, Type 4 Tag operation is based on the ISO-DEP protocol and supports structured command–response communication via APDUs. This enables the implementation of a well-defined state machine and facilitates higher-level protocols, which are essential for authentication mechanisms such as FIDO2.
+\nl The required functionality is achieved most appropriately through the emulation of a Type 4 NFC Forum Tag. In contrast to simpler tag types, Type 4 Tag operation is based on the ISO-DEP protocol and supports structured command–response communication via APDUs. This enables the implementation of a state machine and allows for computation within the tag. These properties are essential for authentication mechanisms such as FIDO2. (See \ref[img-nfc-stack])
 
-\nl Taking these constraints into account, the implementation adopts NFC-A as the underlying transmission technology. NFC-A provides the broadest interoperability across existing NFC readers, particularly in mobile devices, and is the de facto standard for ISO-DEP–based communication and for Type 4 tag implementations.
+NFC-A was selected over NFC-B for the implementation due to its greater support across mobile operating systems.
 
-\nl Our implementation follows the FIDO CTAP2 standard~\cite[fido-ctap-documentation].
+\nl Our implementation follows the FIDO CTAP2.2 standard~\cite[fido-ctap-documentation].
 
 \sec[implementation-hardware] Hardware
 
@@ -26,7 +26,7 @@ The hardware chosen for the implementation is the STEVAL-D25R3916B, a daughter b
 
 The STEVAL-D25R3916B embeds the {\sbf ST25R3916 chip} with an antenna etched on the PCB and the related Very High Bit Rate (VHBR) tuning circuit, allowing it to communicate at higher speeds.
 
-\nl In terms of host communication, the board provides both the Serial Peripheral Interface (SPI) and Inter-Integrated Circuit (I2C) interfaces, complemented by an interrupt request line (IRQ) used to signal events to the MCU.
+\nl In terms of host communication, the board provides both Serial Peripheral Interface (SPI) and Inter-Integrated Circuit (I2C) interfaces, complemented by an interrupt request line (IRQ) used to signal events to the MCU.
 
 \midinsert
 \clabel[img-steval-d25r3916b]{STEVAL-D25R3916B board}
@@ -44,7 +44,7 @@ A significant limitation of the selected device is its absence of energy harvest
 
 The middleware used in this project is the STSW-ST25RFAL002 package, provided by STMicroelectronics as an implementation of the RFAL (RF Abstraction Layer) software for the ST25R3916B NFC frontend. RFAL represents a hardware-oriented abstraction layer that encapsulates low-level device control and RF protocol handling. It provides a set of primitives for device initialization, RF configuration, register-level access, and data exchange.
 
-\nl In our implementation, RFAL forms the intermediary layer between the LionKey application and the NFC frontend. The application exchanges data and control requests with RFAL, while RFAL is responsible for direct interaction with the NFC device, low-level NFC control, communication parameters negotiation and subsequent ISO-DEP R-APDU fragmentation (i.e. when the size APDU being sent is larger than the negotiated frame size). The higher-level communication logic, including the NFC state machine and protocol flow control including short APDU chaining, is implemented in the application layer.
+\nl In our implementation, RFAL forms the intermediary layer between the LionKey application and the NFC frontend. The application exchanges data and control requests with RFAL, while RFAL is responsible for direct interaction with the NFC device, low-level NFC control, communication parameters negotiation, subsequent ISO-DEP R-APDU fragmentation (i.e. when the size APDU being sent is larger than the negotiated frame size) and meeting FWT deadlines (by automatically sending WTX blocks). The higher-level communication logic, including the NFC state machine and protocol flow control, including short APDU chaining, is implemented in the application layer.
 
 \midinsert
 \clabel[img-application-overview]{RFAL Application Overview}
@@ -57,17 +57,16 @@ The middleware used in this project is the STSW-ST25RFAL002 package, provided by
 This section describes the communication interface between the MCU and the NFC frontend.
 
 \midinsert
-\clabel[img-board-connection]{STEVAL-D25R3916B connnection scheme}
+\clabel[img-board-connection]{STEVAL-D25R3916B connection scheme}
 \picheight = 100mm \cinspic ../images/steval-d25r16b_reb-connection.pdf
 \caption /f KiCad scheme showing how the STEVAL-D25R3916B board is connected to the Nucleo-H533 MCU.
 \endinsert
 
 \secc[nfc-spi] SPI Interface
-The communication between the MCU and the NFC frontend is implemented using SPI. This choice is primarily motivated by the strict FWT limits.
 
-\nl Compared to I2C, SPI provides higher data throughput, lower communication latency, and fully deterministic timing due to its synchronous nature and absence of bus arbitration. These properties are critical to ensure protocol compliance. Any excessive delay in data transfer between the front end and the MCU may lead to FWT violations, thus prematurily terminating the NFC session.
+The communication between the MCU and the NFC frontend is implemented using SPI. Compared to I2C, SPI provides higher data throughput, lower communication latency, and, most importantly, fully deterministic timing due to its synchronous nature and absence of bus arbitration. These properties are critical to ensure protocol compliance. Any excessive delay in data transfer between the front end and the MCU may lead to FWT violations, thus prematurely terminating the NFC session.
 
-\nl In our implementation, SPI operates in a master–slave configuration, with the MCU acting as the master and ST25R3916B acting as the slave device. Chip select (CS) is manually controlled via a GPIO pin to ensure precise control over transaction boundaries.
+\nl In our implementation, SPI operates in a master–slave configuration, with the MCU acting as the master and ST25R3916B acting as the slave device. Chip select (CS) is manually driven via a GPIO pin to ensure precise control over transaction boundaries.
 
 \secc[nfc-irq] Interrupt Handling
 
@@ -79,7 +78,7 @@ The IRQ line is asserted by the NFC frontend to indicate events such as receptio
 
 In terms of code, the software implementation follows the practices set by Ing. Endler in the original project. It is written in C with no dynamic memory allocations utilizing a layered design that separates the NFC transport layer, APDU processing, and higher-level FIDO logic. 
 
-\nl The NFC functionality is implemented using a set of state machines integrated into the existing application architecture, with the NFC worker function being ran periodically from the main application loop.
+\nl The NFC functionality is implemented using a set of state machines integrated into the existing application architecture, with the NFC worker function being run periodically from the main application loop.
 
 \nl The primary state machine models the operational state of the NFC frontend and distinguishes between the following states:
 \begitems
