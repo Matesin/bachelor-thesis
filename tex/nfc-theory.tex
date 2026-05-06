@@ -99,8 +99,8 @@ on direction and data rate:
 \nl Transmission is {\sbf asymmetric}:
 \begitems
 
-* {\sbf Reader-to-card}: 10\% Amplitude Shift Keying (ASK) modulation, where the carrier amplitude drops to approximately 90\% to represent a logical 0, and remains at full amplitude for logical 1. The low modulation index keeps the carrier stable, reducing RF noise pickup.
-* {\sbf Card-to-reader}: Binary Phase Shift Keying (BPSK) modulation of a subcarrier, which allows the card to respond without being overwhelmed by the reader's transmitted signal. The initial phase of the subcarrier represents logical 1 and a 180 degree shift represents a logical 0.
+* {\sbf PCD to PICC}: 10\% ASK modulation. The carrier amplitude drops to approximately 90\% of the amplitude to represent a logical 0, and remains at full amplitude for logical 1. The low modulation index keeps the carrier stable, reducing RF noise pickup.
+* {\sbf PICC to PCD}: Binary Phase Shift Keying (BPSK) modulation of a subcarrier (fc/16), which allows the card to respond without being overwhelmed by the reader's transmitted signal. The initial phase of the subcarrier represents logical 1 and a 180 degree shift represents a logical 0.
 \enditems
 
 The asymmetric modulation scheme and lower modulation index result in {\sbf improved robustness against electromagnetic interference}-a critical advantage for applications requiring high reliability.
