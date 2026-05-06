@@ -1,16 +1,12 @@
 \chap[nfc-theory] NFC
 
-This chapter introduces the principles of  {\sbf Near Field Communication (NFC)} relevant to the implementation presented in this thesis. Since NFC covers a broad set of radio technologies, operating modes, and higher-layer protocols, the discussion is {\sbf limited} primarily to {\sbf NFC-A}, {\sbf Card Emulation}, {\sbf ISO-DEP}, and {\sbf APDU}-based {\sbf communication}.
-
-\nl Other technologies within the NFC ecosystem are discussed only briefly to provide context and completeness.
+This chapter introduces the principles of  {\sbf Near Field Communication (NFC)} relevant to the implementation presented in this thesis. Since NFC covers a broad set of radio technologies, operating modes, and higher-layer protocols, the discussion is {\sbf limited} primarily to {\sbf NFC-A}, {\sbf Card Emulation}, {\sbf ISO-DEP}, and {\sbf APDU}-based {\sbf communication}. Other notable technologies within the NFC ecosystem (as shown in Figure~\ref[img-nfc-stack]) are only briefly discussed to provide context and completeness.
 
 \sec[nfc-intro] Introduction to NFC
 
 NFC is a short-range wireless communication technology derived from radio-frequency identification (RFID) systems. It enables {\sbf bidirectional data exchange} between devices in immediate or close proximity, typically within a range of up to 10~cm, with reliable operation occurring at distances of approximately 4~cm~\cite[rfid-nfc-introduction]. It is standardized primarily through ISO/IEC specifications and NFC Forum\urlnote{https://nfc-forum.org} specifications. The key specifications include ISO/IEC~14443, which defines proximity card communication (used in NFC-A and NFC-B), and ISO/IEC~18092, which specifies peer-to-peer communication. In addition, the NFC Forum defines higher-level protocols and data formats to ensure interoperability across devices.
 
-\nl NFC operates at a {\sbf carrier frequency (fc) of 13.56~MHz} and is based on {\sbf inductive coupling} between {\sbf loop antennas}. In this mechanism, defined in \cite[iso14443-2], an active device generates an electromagnetic field, while a passive device modulates this field to transmit data.
-
-\nl NFC supports three primary operating modes: reader/writer mode, card emulation (CE) mode, and peer-to-peer mode. From the perspective of this thesis, the CE mode is of particular importance, as it allows the device to behave as a contactless smart card and participate in ISO-DEP communication with an external reader.
+\nl NFC operates at a {\sbf carrier frequency (fc) of 13.56~MHz} and is based on {\sbf inductive coupling} between {\sbf loop antennas}. In this mechanism, defined in \cite[iso14443-2], an active device generates an electromagnetic field, while a passive device modulates this field to transmit data. The technology supports three primary operating modes: reader/writer mode, card emulation (CE) mode, and peer-to-peer mode. From the perspective of this thesis, the CE mode is of particular importance, as it allows the device to behave as a contactless smart card and participate in ISO-DEP communication with an external reader.
 
 \sec[nfc-device-types] Device Types
 
@@ -75,23 +71,32 @@ These operating modes build upon the previously described concepts of initiator 
 \sec[nfc-rf-technologies] NFC RF Technologies
 \secc[nfc-a] NFC-A
 
-{\sbf NFC-A} is based on ISO/IEC 14443 Type A. In typical NFC-A communication, initialization and anticollision are performed at 106 kbit/s (fc/128). In theory, the specification allows speeds up to 27.12 Mbit/s (2fc) after activation. Hovewer, 
+{\sbf NFC-A} is based on ISO/IEC 14443 Type A. In typical NFC-A communication, initialization and anticollision are performed at 106 kbit/s (fc/128). In theory, the specification allows speeds up to 27.12 Mbit/s (2fc) after activation.
 
-\nl {\sbf Encoding and Modulation:} NFC-A employs {\sbf Miller (delay) encoding}, a line code where logical bits are represented by time-dependent transitions in signal amplitude. This encoding improves robustness against noise and enables reliable clock synchronization between reader and card.
-The encoded signal then modulates the RF carrier using different schemes depending on transmission speed:
+\nl {\sbf Encoding and Modulation:}At 106 kbit/s, NFC-A employs {\sbf Modified Miller encoding} in the reader-to-card (PCD to PICC) direction, where logical bits are represented by pulse-position transitions in signal amplitude. The card-to-reader (PICC to PCD) direction uses {\sbf Manchester encoding} with a subcarrier at fc/16. These encodings improve robustness against noise and enable reliable clock synchronization.
+
+\nl The encoded signal modulates the RF carrier using different schemes depending
+on direction and data rate:
 \begitems
-
-* {\sbf 106 kbit/s to fc/16}: Amplitude Shift Keying (ASK) modulation, where the carrier amplitude shifts between minimum and maximum to represent encoded bits.
+* {\sbf 106 kbit/s to fc/16 (PCD to PICC):} 100\% Amplitude Shift Keying (ASK) modulation with Modified Miller encoding where the carrier is fully suppressed during pause intervals.
+* {\sbf 106 kbit/s (PICC to PCD):} OOK (On-Off Keying) modulated subcarrier at fc/16 with Manchester encoding via load modulation.
 * {\sbf fc/8 to fc/2}: Same modulation as NFC-B (see below).
-* {\sbf 3fc/4 to 2fc}: Phase Shift Keying (PSK) modulation, where the carrier phase shifts to encode information, reducing sensitivity to amplitude noise at higher speeds.
+* {\sbf 3fc/4 to 2fc}: Phase Shift Keying (PSK) modulation, where the carrier phase shifts to encode information, reducing sensitivity to amplitude noise at higher speeds. ASK is retained for the PCD to PICC direction.
 \enditems
+
+\midinsert
+\clabel[img-nfc-modulation]{NFC Modulation}
+\picheight = 60mm \cinspic ../images/nfc-modulation.png
+\caption /f Examples of NFC A and B modulation at 106 kbit/s \cite[iso14443-2]
+\endinsert
 
 \secc[nfc-b] NFC-B
 
 {\sbf NFC-B} is based on ISO/IEC 14443 Type B. Initialization and anticollision operate at 106 kbit/s, with a maximum data exchange speed of 6.78 Mbit/s (fc/2), lower than NFC-A's maximum.
 
-{\sbf Encoding and Modulation:} NFC-B uses {\sbf NRZ-L (Non-Return-to-Zero Level)} encoding, where high and low amplitude levels directly represent logical 1 and 0 without returning to zero between bits.
-Transmission is {\sbf asymmetric}:
+\nl {\sbf Encoding and Modulation:} NFC-B uses {\sbf NRZ-L (Non-Return-to-Zero Level)} encoding, where high and low amplitude levels directly represent logical 1 and 0 without returning to zero between bits.
+
+\nl Transmission is {\sbf asymmetric}:
 \begitems
 
 * {\sbf Reader-to-card}: 10\% Amplitude Shift Keying (ASK) modulation, where the carrier amplitude drops to approximately 90\% to represent a logical 0, and remains at full amplitude for logical 1. The low modulation index keeps the carrier stable, reducing RF noise pickup.
@@ -110,7 +115,7 @@ The asymmetric modulation scheme and lower modulation index result in {\sbf impr
 
 \sec[nfc-a-state-machine] NFC-A State Machine
 
-NFC-A anticollision and activation sequence has a defined state machine behavior, respecting~\cite[iso14443-3]. This state machine must be respected for the correct initialization of the communication and protocol flow. 
+NFC-A anticollision and activation sequence has a defined state machine behavior, respecting~\cite[iso14443-3]. This state machine must be respected for the correct initialization of the communication and protocol flow, as illustrated in Figure \ref[img-nfc-init-flow]. 
 
 \nl A PCD can use the following commands during the anticollision sequence an NFC-A PICC:
 
@@ -168,7 +173,7 @@ The NFC-A state machine has the following States:
 
 NFC-A uses a {\sbf bit-frame anticollision} method based on binary tree traversal. Since multiple PICCs may respond simultaneously to a REQA or WUPA command, their signals can overlap and corrupt each other, this is called a {\sbf collision}. The anticollision loop resolves collisions iteratively by narrowing down the UID of each card in the field. This overview focuses solely on the NFC-A procedures, although the standard also specifies behavior for hybrid tags supporting both the NFC-A and NFC-B types.
 
-The commands defined in this subsection are later used in Chapter~\ref[evaluation] to ensure correct operation of the NFC frontend.
+\nl The commands defined in this subsection are later used in Chapter~\ref[evaluation] to ensure correct operation of the NFC frontend.
 
 \seccc[nfc-a-polling] Polling
 
@@ -225,8 +230,8 @@ The following sequence repeats for each required cascade level:
 
 \midinsert \clabel[table-anticollision]{ANTICOLLISION command structure}
 \ctable{c|c|c|c|c|c|c|c}{
-\hfil SEL & \multispan4 NVB \vrule & UID CLn (partial) & BCC & E\crl \tskip5pt
- CL(1-3)y & 0 & byte count & 0 & bit count & 0--4 bytes (NVB dependent) & & \crl
+\hfil SEL & \multispan4 NVB \vrule & UID CLn & BCC & E\crl \tskip5pt
+ CL(1-3) & 0 & byte count & 0 & bit count & 0--4 bytes (NVB) & & \crl
 }
 \caption/t ANTICOLLISION command structure. 
 \endinsert
@@ -347,7 +352,7 @@ ISO-DEP serves as the transport layer for {\sbf Application Protocol Data Units 
 \caption/t Byte-level structure of extended C-APDUs.
 \endinsert
 
-Response APDUs consist of an optional data field followed by a mandatory two-byte status word (SW1, SW2). 
+\nl Response APDUs consist of an optional data field followed by a mandatory two-byte status word (SW1, SW2). 
 
 \midinsert
 \clabel[table-rapdu-general]{R-APDU structure}
@@ -358,7 +363,7 @@ Response APDUs consist of an optional data field followed by a mandatory two-byt
 \caption/t General structure of a R-APDU.
 \endinsert
 
-The practical structure of APDU communication can be illustrated on the {\sbf following example}: 
+\nl The practical structure of APDU communication can be seen in Figure \ref[img-fido-select] and its subsequent breakdown.
 
 \midinsert
 \clabel[img-fido-select]{FIDO Select Log}

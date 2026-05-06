@@ -1,6 +1,4 @@
-\chap[passkeys-theory] An Alternative Authentication Method
-
-This chapter defines the motivation for the use of an alternative authentication method. 
+\chap[passkeys-theory] Passkeys
 
 \nl The Internet has become an integral part of daily life for most of the world’s population. In December 2025, approximately {\sbf 6.047 billion people} (73.2\% of the global population) were {\sbf Internet users}, representing a 14\% increase compared to 2020~\cite[internet-usage-stats]. This growth, along with an increasing reliance on online services, has been accompanied by an increase in cyberattacks and personal data breaches.
 
@@ -8,14 +6,14 @@ This chapter defines the motivation for the use of an alternative authentication
 
 \nl In response, organizations have {\sbf increasingly adopted multi-factor authentication (MFA}), which supplements passwords with additional verification factors such as one-time codes, authentication applications, or trusted devices. The adoption of MFA has grown significantly; for example, {\sbf 83\% of organizations required MFA} for all access to IT in 2024~\cite[jumpcloud-sme-2024]. Despite variations across surveys, it is clearly observable that {\sbf MFA has become a popular safety measure}.
 
-\sec[passkeys] Passkeys
+\sec[passkeys] The Advantages of Passkeys
 
 \nl Despite the growing usage of MFA, Ing. Martin Endler argues in his diploma thesis that many {\sbf existing authentication methods}
 ``{\sbf do not provide sufficient security} and hinder the user experience''
 ~\cite[endler-thesis]. Passkeys -- standardized by the FIDO Alliance -- have emerged as a response to these limitations.
 
 \nl The FIDO Alliance {\sbf defines a passkey} as
- ``\dots [an] authentication {\sbf credential} based on FIDO standards that allows a user to {\sbf log into apps and websites} with the same process they use to unlock their device (biometrics, PIN or pattern). Passkeys rely on {\sbf asymmetric cryptography}, where the private key is securely stored on the user’s authenticator, while the corresponding public key is registered with the service ''
+ ``\dots authentication {\sbf credential} based on FIDO standards that allows a user to {\sbf log into apps and websites} with the same process they use to unlock their device (biometrics, PIN or pattern). Passkeys rely on {\sbf asymmetric cryptography}, where the private key is securely stored on the user’s authenticator, while the corresponding public key is registered with the service ''
 \urlnote{https://fidoalliance.org/passkeys/}.
 
 \nl According to data published by the FIDO Alliance, passkey support has already been {\sbf adopted} by approximately a {\sbf fifth} of the world’s {\sbf top 100 websites} and services~\cite[fido-password-passkey-trends]. Furthermore, major technology providers, including Apple, Google, and Microsoft, have integrated passkey support into their platforms, allowing further support for this authentication method.
@@ -58,8 +56,6 @@ A {\sbf detailed breakdown} of this framework, including a detailed description 
 
 \secc[ctap-relevancy] Post-Quantum Security of the CTAP Protocol
 
-To further extend Endler's overview, this section briefly examines the {\sbf post-quantum (PQ) security} considerations of the CTAP protocol. As quantum computing technology advances, it poses a significant {\sbf long-term threat} to currently used public-key cryptographic schemes~\cite[enwiki:1349019275]. Although no quantum computer is currently capable of breaking them, the issue is important to acknowledge.
+As quantum computing technology advances, it poses a significant {\sbf long-term threat} to currently used public-key cryptographic schemes~\cite[enwiki:1349019275]. Although no quantum computer is currently capable of breaking them, the issue is important to acknowledge. Therefore, we provide a brief examination of the {\sbf post-quantum (PQ) security} of the CTAP protocol.
 
-\nl The version of CTAP implemented in this project (CTAP 2.2) {\sbf does not provide native PQ security}, as it relies on conventional public-key cryptographic primitives that could be compromised by sufficiently capable quantum adversaries. Nevertheless, the current protocol architecture is considered to be {\sbf PQ ready}. In particular, its PIN/UV authentication model requires active user verification and physical presence, while the protocol itself can be adapted to stronger cryptographic primitives without a fundamental redesign. Therefore, a full quantum-resistant operation {\sbf could be achieved} by replacing the current asymmetric mechanisms with post-quantum key encapsulation and signature mechanisms, provided that such changes are introduced consistently across both CTAP and WebAuthn within the FIDO2 framework~\cite[cryptoeprint:2022/1029].
-
-\nl The topic of making the CTAP protocol quantum-safe is {\sbf discussed} in more detail in the {\sbf work of Kniep}~\cite[kniep-thesis].
+\nl The version of CTAP implemented in this project (CTAP 2.2) {\sbf does not provide native PQ security}, as it relies on conventional public-key cryptographic primitives that could be compromised by sufficiently capable quantum adversaries. Nevertheless, the current protocol architecture is considered to be {\sbf PQ ready}. In particular, its PIN/UV authentication model requires active user verification and physical presence, while the protocol itself can be adapted to stronger cryptographic primitives without a fundamental redesign. Therefore, a full quantum-resistant operation {\sbf could be achieved} by replacing the current asymmetric mechanisms with post-quantum key encapsulation and signature mechanisms, provided that such changes are introduced consistently across both CTAP and WebAuthn within the FIDO2 framework~\cite[cryptoeprint:2022/1029]. The topic of making the CTAP protocol quantum-safe is {\sbf discussed} in more detail in the {\sbf work of Kniep}~\cite[kniep-thesis].
