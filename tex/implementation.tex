@@ -66,7 +66,7 @@ This section describes the communication interface between the MCU and the NFC f
 
 The communication between the MCU and the NFC frontend is implemented using SPI. Compared to I2C, SPI provides higher data throughput, lower communication latency, and, most importantly, fully deterministic timing due to its synchronous nature and absence of bus arbitration. These properties are critical to ensure protocol compliance. Any excessive delay in data transfer between the front end and the MCU may lead to FWT violations, thus prematurely terminating the NFC session.
 
-\nl In our implementation, SPI operates in a master–slave configuration, with the MCU acting as the master and ST25R3916B acting as the slave device. Chip select (CS) is manually driven via a GPIO pin to ensure precise control over transaction boundaries. The specifics of the connection are illustrated in \ref[img-board-connection].
+\nl In our implementation, SPI operates in a master–slave configuration, with the MCU acting as the master and ST25R3916B acting as the slave device. Chip select (CS) is manually driven via a GPIO pin to ensure precise control over transaction boundaries. The specifics of the connection are illustrated in Figure \ref[img-board-connection].
 
 \secc[nfc-irq] Interrupt Handling
 
@@ -80,21 +80,21 @@ In terms of code, the software implementation follows the practices set in the o
 
 \nl The NFC functionality is implemented using a set of state machines integrated into the existing application architecture, with the NFC worker function being run periodically from the main application loop.
 
-\nl The primary state machine models the operational state of the NFC frontend and distinguishes between the following states (refer to \ref[img-impl-state-machine]):
+\nl The primary state machine models the operational state of the NFC frontend and distinguishes between the following states (refer to Figure \ref[img-impl-state-machine]):
 \begitems
-* {\sbf Uninitialized}
-\nl Initial state of the device, waiting for initialization (NFC_NOTINIT). 
-* {\sbf Inactive (Idle) state}
-\nl The device is not within the range of an NFC reader (NFC_DISCOVERY).
-* {\sbf Active state}
-\nl CE mode is active and data exchange with the reader is in progress (NFC_CE_ACTIVE).
-* {\sbf Reset state}
-\nl The communication session has ended and the NFC runtime context is reinitialized to its default configuration (NFC_START_DISCOVERY).
+* {\sbf Uninitialized (NOTINIT)}
+\nl Initial state of the device, waiting for initialization. Transitions to the DISCOVERY state after initialization.
+* {\sbf Inactive (Idle) state (DISCOVERY)}
+\nl The device is ready but not within the range of a PCD . Transitions to the CE_ACTIVE state when the ISO-DEP initialization sequence is done (see \ref[nfc-a-state-machine]).
+* {\sbf Active state (CE_ACTIVE)}
+\nl CE mode is active and data exchange with the reader is in progress. The transition to START_DISCOVERY state commences when an error occurs, the device is requested to go idle by the PCD, or when the device leaves the PCD field.
+* {\sbf Reset state (START_DISCOVERY)}
+\nl The communication session has ended and the NFC runtime context is reinitialized to its default configuration. The device then immediately transitions to the DISCOVERY state.
 \enditems
 
 \secc[nfc-transaction-handling] Transaction Handling
 
-To ensure non-blocking operation and enable concurrent execution of other critical components in parallel with NFC, the card emulation task is implemented as a separate state machine (within NFC_CE_ACTIVE in \ref[img-impl-state-machine]). This secondary state machine governs the progression of individual NFC transactions, including reception and transmission phases and consists of the following states: 
+To ensure non-blocking operation and enable concurrent execution of other critical components in parallel with NFC, the card emulation task is implemented as a separate state machine (within NFC_CE_ACTIVE in \ref[img-impl-state-machine]). This secondary state machine governs the progression of individual NFC transactions, including reception and transmission phases, and consists of the following states: 
 
 \begitems
 * {\sbf Idle (CE_STATE_IDLE)}
@@ -116,7 +116,7 @@ reinitialize the context for a new session.
 
 \midinsert
 \clabel[img-impl-state-machine]{Implemented State Machine}
-\picheight = 100mm \cinspic ../images/lionkey-nfc-state-machine.png
+\picheight = 90mm \cinspic ../images/lionkey-nfc-state-machine.png
 \caption /f PlantUML diagram of the implemented state machine.
 \endinsert
 
@@ -286,6 +286,7 @@ uint16_t nfc_parse_and_respond(t4t_context_t *ctx,
     switch (ctx->selected_app)
     {
         case APP_FIDO:
+            /* Handle short/extended APDU or chaining request */
             ...
 
         case APP_NDEF:
@@ -296,7 +297,9 @@ uint16_t nfc_parse_and_respond(t4t_context_t *ctx,
 }
 \endtt
 
-\nl The parser supports all defined APDU formats and handles edge cases (i.e. wrong length or unsupported CLA) according to \cite[iso14443-4]. The implementation supports both CTAP2-related communication and basic NDEF communication. The NDEF state machine exposes a static NDEF file containing a single URI record that directs the user to the lionkey.dev website.
+\nl The parser supports all defined APDU formats and handles edge cases (i.e., incorrect length or unsupported CLA) according to \cite[iso7816-4]. The implementation follows the NFC Forum Type 4 Tag specification and supports both CTAP2-related communication and basic NDEF communication, thus fulfilling the goal of the thesis of ``Demonstrating basic NFC functionality''. 
+
+\nl The NDEF state machine exposes a static NDEF file that contains a single URI record that directs the user to the lionkey.dev website.
 
 \begtt
 static const uint8_t NDEF_FILE[] = {
@@ -311,6 +314,52 @@ static const uint8_t NDEF_FILE[] = {
 };
 \endtt
 
-\nl CTAP2 short-APDU commands that exceed the NFC frame size are split across multiple APDUs using command (APDU) chaining, as requested by \cite[fido-ctap-documentation]. The transaction handler accumulates chained fragments into chain_buf before passing the reassembled payload to the CTAP2 processing layer.
+\nl CTAP2 short-APDU responses that exceed the NFC frame size are split across multiple APDUs using chaining (note that we are referring to APDU chaining, not ISO-DEP chaining which is done internally by RFAL), as requested by \cite[fido-ctap-documentation]. The transaction handler accumulates chained fragments into chain_buf before passing the reassembled payload to the CTAP2 processing layer. The first chunk of the response is sent when handling the CTAP request:
 
+\begtt 
+if (full_len > sizeof(ctx->chain_buf))
+{
+    /* Protect against oversized response */
+    ctx->chain_len = 0U;
+    return nfc_put_sw(tx_buf, NFC_SW_WRONG_LENGTH);
+}
+/* Handle the first chaining chunk */ 
+memcpy(ctx->chain_buf, nfc_ctap_response_buffer, full_len);
+ctx->chain_offset = ctx->resp_len_expexted;
+ctx->chain_len    = (uint16_t)(full_len - ctx->resp_len_expexted);
 
+uint8_t remaining = (ctx->chain_len > 0xFFU) ? 0xFFU
+                                              : (uint8_t)ctx->chain_len;
+/* Append SW */
+uint16_t chain_sw = (uint16_t)(NFC_SW_CHAIN | remaining);
+    
+\endtt
+
+\nl And the subsequent chunks are send after receiving a \code{CTAP_CHAIN} C-APDU:
+
+\begtt
+// subsequent apdu chain command, append to chain buffer
+if ((size_t)ctx->chain_len + apdu->lc > sizeof(ctx->chain_buf))
+{
+    // protect against overflow
+    ctx->chain_len = 0U;
+    ctx->is_chaining = false;
+    return nfc_put_sw(tx_buf, NFC_SW_WRONG_LENGTH);
+}
+memcpy(ctx->chain_buf + ctx->chain_len, apdu->data, apdu->lc);
+ctx->chain_len += (uint16_t) apdu->lc;
+
+if (!apdu->has_le)
+{
+    // more chaining to come
+    return nfc_put_sw(tx_buf, NFC_SW_OK);
+}
+// last chain command, process the full request
+ctx->is_chaining = false;
+ctx->resp_len_expexted = apdu->le;
+return fido_handle_ctap(ctx, 
+                        ctx->chain_buf,
+                        ctx->chain_len, 
+                        tx_buf, 
+                        tx_buf_len);
+\endtt

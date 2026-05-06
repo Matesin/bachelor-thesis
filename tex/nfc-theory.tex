@@ -66,14 +66,14 @@ The NFC Forum defines {\sbf three} primary {\sbf operating modes} that determine
 
 \enditems
 
-These operating modes build upon the previously described concepts of initiator and target roles, as well as active and passive communication modes. Their combination defines the functional behavior of NFC devices in real-world applications.
+These operating modes build upon the previously described concepts of initiator and target roles, as well as active and passive communication modes. Their combination defines the functional behavior of NFC devices in real-world applications. 
 
 \sec[nfc-rf-technologies] NFC RF Technologies
 \secc[nfc-a] NFC-A
 
 {\sbf NFC-A} is based on ISO/IEC 14443 Type A. In typical NFC-A communication, initialization and anticollision are performed at 106 kbit/s (fc/128). In theory, the specification allows speeds up to 27.12 Mbit/s (2fc) after activation.
 
-\nl {\sbf Encoding and Modulation:}At 106 kbit/s, NFC-A employs {\sbf Modified Miller encoding} in the reader-to-card (PCD to PICC) direction, where logical bits are represented by pulse-position transitions in signal amplitude. The card-to-reader (PICC to PCD) direction uses {\sbf Manchester encoding} with a subcarrier at fc/16. These encodings improve robustness against noise and enable reliable clock synchronization.
+\nl {\sbf Encoding and Modulation:} Both NFC-A and NFC-B use {\sbf asymmetric} transaction methods. At 106 kbit/s, NFC-A employs {\sbf Modified Miller encoding} in the reader-to-card (PCD to PICC) direction, where logical bits are represented by pulse-position transitions in signal amplitude. The card-to-reader (PICC to PCD) direction uses {\sbf Manchester encoding} with a subcarrier at fc/16. These encodings improve robustness against noise and enable reliable clock synchronization.
 
 \nl The encoded signal modulates the RF carrier using different schemes depending
 on direction and data rate:
@@ -96,14 +96,13 @@ on direction and data rate:
 
 \nl {\sbf Encoding and Modulation:} NFC-B uses {\sbf NRZ-L (Non-Return-to-Zero Level)} encoding, where high and low amplitude levels directly represent logical 1 and 0 without returning to zero between bits.
 
-\nl Transmission is {\sbf asymmetric}:
 \begitems
 
 * {\sbf PCD to PICC}: 10\% ASK modulation. The carrier amplitude drops to approximately 90\% of the amplitude to represent a logical 0, and remains at full amplitude for logical 1. The low modulation index keeps the carrier stable, reducing RF noise pickup.
 * {\sbf PICC to PCD}: Binary Phase Shift Keying (BPSK) modulation of a subcarrier (fc/16), which allows the card to respond without being overwhelmed by the reader's transmitted signal. The initial phase of the subcarrier represents logical 1 and a 180 degree shift represents a logical 0.
 \enditems
 
-The asymmetric modulation scheme and lower modulation index result in {\sbf improved robustness against electromagnetic interference}-a critical advantage for applications requiring high reliability.
+\nl The lower modulation index results in {\sbf improved robustness} against electromagnetic interference. This means that NFC-B is more suitable for applications requiring high reliability.
 
 \secc[nfc-f] NFC-F
 
