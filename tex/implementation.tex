@@ -48,8 +48,8 @@ The middleware used in this project is the STSW-ST25RFAL002 package, provided by
 
 \midinsert
 \clabel[img-application-overview]{RFAL Application Overview}
-\picheight = 50mm \cinspic ../images/st-rfal-system-overview.pdf
-\caption /f Communication flow between the Application (LionKey) and the NFC device using RFAL. (Source: STMicroelectronics STSW-ST25RFAL002 Data Brief)
+\picheight = 40mm \cinspic ../images/rfal-flow.png
+\caption /f Communication flow between the Application (LionKey) and the NFC device using RFAL \cite[st-rfal-manual].
 \endinsert
 
 
@@ -66,7 +66,7 @@ This section describes the communication interface between the MCU and the NFC f
 
 The communication between the MCU and the NFC frontend is implemented using SPI. Compared to I2C, SPI provides higher data throughput, lower communication latency, and, most importantly, fully deterministic timing due to its synchronous nature and absence of bus arbitration. These properties are critical to ensure protocol compliance. Any excessive delay in data transfer between the front end and the MCU may lead to FWT violations, thus prematurely terminating the NFC session.
 
-\nl In our implementation, SPI operates in a master–slave configuration, with the MCU acting as the master and ST25R3916B acting as the slave device. Chip select (CS) is manually driven via a GPIO pin to ensure precise control over transaction boundaries.
+\nl In our implementation, SPI operates in a master–slave configuration, with the MCU acting as the master and ST25R3916B acting as the slave device. Chip select (CS) is manually driven via a GPIO pin to ensure precise control over transaction boundaries. The specifics of the connection are illustrated in \ref[img-board-connection].
 
 \secc[nfc-irq] Interrupt Handling
 
@@ -76,32 +76,241 @@ The IRQ line is asserted by the NFC frontend to indicate events such as receptio
 
 \sec[nfc-software] Software Implementation
 
-In terms of code, the software implementation follows the practices set by Ing. Endler in the original project. It is written in C with no dynamic memory allocations utilizing a layered design that separates the NFC transport layer, APDU processing, and higher-level FIDO logic. 
+In terms of code, the software implementation follows the practices set in the original project. It is written in C with no dynamic memory allocations utilizing a layered design that separates the NFC transport layer, APDU processing, and higher-level FIDO logic. 
 
 \nl The NFC functionality is implemented using a set of state machines integrated into the existing application architecture, with the NFC worker function being run periodically from the main application loop.
 
-\nl The primary state machine models the operational state of the NFC frontend and distinguishes between the following states:
+\nl The primary state machine models the operational state of the NFC frontend and distinguishes between the following states (refer to \ref[img-impl-state-machine]):
 \begitems
-* {Inactive (Idle) state}
-\nl The device is not within the range of an NFC reader.
-* {Active state}
-\nl CE mode is active and data exchange with the reader is in progress.
-* {Reset state}
-\nl The communication session has ended and the NFC runtime context is reinitialized to its default configuration.
+* {\sbf Uninitialized}
+\nl Initial state of the device, waiting for initialization (NFC_NOTINIT). 
+* {\sbf Inactive (Idle) state}
+\nl The device is not within the range of an NFC reader (NFC_DISCOVERY).
+* {\sbf Active state}
+\nl CE mode is active and data exchange with the reader is in progress (NFC_CE_ACTIVE).
+* {\sbf Reset state}
+\nl The communication session has ended and the NFC runtime context is reinitialized to its default configuration (NFC_START_DISCOVERY).
 \enditems
 
 \secc[nfc-transaction-handling] Transaction Handling
 
-To ensure non-blocking operation and enable concurrent execution of other critical components in parallel with NFC, the card emulation task is implemented as a separate state machine. This secondary state machine governs the progression of individual NFC transactions, including reception and transmission phases. 
+To ensure non-blocking operation and enable concurrent execution of other critical components in parallel with NFC, the card emulation task is implemented as a separate state machine (within NFC_CE_ACTIVE in \ref[img-impl-state-machine]). This secondary state machine governs the progression of individual NFC transactions, including reception and transmission phases and consists of the following states: 
 
-\nl Upon receiving an APDU from the reader, the message is parsed and processed according to its semantics. The parser supports all defined APDU formats and handles edge cases according to the mentioned ISO specification. The implementation supports both CTAP2-related communication and basic NDEF communication. The NDEF state machine provides the user with an URI record that directs the user to the lionkey.dev website.
-
-\nl Upon receiving, parsing and, in case of a chained APDU request, concatenating a CTAP2 command, this is then handled by the CTAP API provided in the original LionKey solution.
-
-\nl Management of the communication state machine is performed by periodic polling of the exchange status provided with the RFAL library with errors handled in accordance with the ISO specification.
+\begitems
+* {\sbf Idle (CE_STATE_IDLE)}
+\nl The card emulation layer is activated but no exchange has been initiated yet. Initializes context. Transitions to CE_STATE_WAIT_RX when communication is initialized.
+* {\sbf Wait RX (CE_STATE_WAIT_RX)}
+\nl The device is listening for an incoming APDU from the reader. The RFAL 
+exchange status is polled until a complete frame is received. Upon receiving a complete frame, it transitions to PROCESS_RX. In case sleep is requested by the PCD, the state machine goes to IDLE. Otherwise, if an unexpected error occurs (i.e. an incomplete frame is received), it transitions to ERROR_RECOVERY.
+* {\sbf Process RX (CE_STATE_PROCESS_RX)}
+\nl The received APDU is parsed and a response is constructed. Upon success, 
+transmission is initiated and the state advances to WAIT_TX.
+* {\sbf Wait TX (CE_STATE_WAIT_TX)}
+\nl The device waits for the transmission of the response to complete, after 
+which the state returns to WAIT_RX to await the next command.
+* {\sbf Error Recovery (CE_STATE_ERROR_RECOVERY)}
+\nl An unrecoverable protocol error has occurred. The session is terminated,
+and the primary state machine transitions to NFC_START_DISCOVERY to 
+reinitialize the context for a new session.
+\enditems
 
 \midinsert
 \clabel[img-impl-state-machine]{Implemented State Machine}
 \picheight = 100mm \cinspic ../images/lionkey-nfc-state-machine.png
 \caption /f PlantUML diagram of the implemented state machine.
 \endinsert
+
+\nl Management of the communication state machine is performed by periodic polling of the exchange status provided with the RFAL library. Although an interrupt-driven approach would normally be more suitable in an embedded device, we opted to follow the same coding practices as the original project. Therefore, polling is used for transaction handling instead of interrupts. The IRQ line is, however, used internally by the RFAL for its own state machine handling.
+
+\begtt
+static bool nfc_handle_wait_rx(void)
+{
+
+    if (nfc_poll_transmission_status(RX) == false)
+    {
+        return false;
+    }
+    ...
+}
+
+static bool nfc_poll_transmission_status(transmission_line_t line)
+{
+    const ReturnCode err = rfalNfcDataExchangeGetStatus();
+
+    /* Transaction still in progress */
+    if (err == RFAL_ERR_BUSY)
+    {
+        return false;
+    }
+
+    /* Sleep requested by the PCD */
+    if (err == RFAL_ERR_SLEEP_REQ)
+    {
+        nfc_runtime.ce_state = CE_STATE_IDLE;
+        return false;
+    }
+
+    /* Other unexpected error, enter error recovery state */
+    if (err != RFAL_ERR_NONE)
+    {
+        nfc_enter_error_recovery(err);
+        return false;
+    }
+
+    return true;
+}
+\endtt
+
+\nl Upon receiving an APDU from the reader (PROCESS_RX), the message is parsed and processed according to its semantics:
+
+\begtt
+static bool nfc_handle_process_rx(void)
+{
+  nfc_runtime.tx_len = nfc_parse_and_respond(&nfc_runtime.ce_ctx,
+                                             nfc_runtime.rx_data,
+                                             *nfc_runtime.rcv_len,
+                                             nfc_runtime.tx_buf,
+                                             sizeof(nfc_runtime.tx_buf));
+
+    if ((nfc_runtime.tx_len == NFC_PARSE_WRONG_SIZE) 
+         || (nfc_runtime.tx_len == 0))
+    {
+        nfc_enter_error_recovery("APDU response invalid", 0);
+        return false;
+    }
+
+    if (!nfc_start_tx(nfc_runtime.tx_buf, nfc_runtime.tx_len))
+    {
+        rfalNfcDeactivate(RFAL_NFC_DEACTIVATE_DISCOVERY);
+    }
+    return false;
+}
+\endtt 
+
+\nl The current context of the ISO-DEP state is managed by the t4t_context struct:
+
+\begtt
+typedef struct
+{
+    uint8_t selected_file;      
+    /*!< currently selected file */
+    uint8_t selected_app;       
+    /*!< currently selected applet */
+    const uint8_t *cc_file;     
+    /*!< contents of the CC file */
+    uint16_t cc_file_len;       
+    /*!< length of the CC file */
+    uint8_t *ndef_file;        
+    /*!< contents of the NDEF file */
+    uint16_t ndef_file_len;     
+    /*!< length of the NDEF file */
+    uint16_t fid_cc;            
+    /*!< file ID of the CC file */
+    uint16_t fid_ndef;          
+    /*!< file ID of the NDEF file */
+    bool ndef_write_allowed;    
+    /*!< flag indicating whether the NDEF file is writable */
+
+    /*! Chaining helpers */
+    uint8_t chain_buf[CTAPHID_MAX_PAYLOAD_LENGTH]; 
+    /*!<buffer for building responses larger than Le */
+    uint16_t chain_offset;                          
+    /*!<offset in the chain buffer for the current response being built*/
+    uint16_t chain_len;                             
+    /*!<remaining length of the response to be sent in the chain buffer*/
+
+    bool is_chaining;
+    /*!<is chaining in progress */
+    bool extended;
+    /*!<is extended apdu being used in this context*/
+    size_t resp_len_expected;
+    /*!<expected response length */
+
+} t4t_context_t;
+\endtt
+
+\nl And the incoming APDU is processed as follows:
+
+\begtt 
+uint16_t nfc_parse_and_respond(t4t_context_t *ctx, 
+                               uint8_t *rx_data, 
+                               uint16_t rx_data_len, 
+                               uint8_t *tx_buf, 
+                               uint16_t tx_buf_len )
+{
+    nfc_apdu_t apdu;
+    apdu_parse_status_t err;
+
+    ...
+    /* 1. - parse APDU */
+    err = nfc_parse_apdu(rx_data, rx_data_len, &apdu);
+
+
+    /* 2 - handle deselect */
+    if (apdu.ins == NFC_INS_DESELECT) {
+        ctx->selected_app  = APP_NONE;
+        ctx->selected_file = FILE_NONE;
+        ctx->chain_len     = 0U;
+        return nfc_put_sw(tx_buf, NFC_SW_OK);
+    }
+
+    /* 3. - handle handshake */
+    if ((apdu.cla == NFC_CLA_ISO) &&
+        (apdu.ins == NFC_INS_SELECT) &&
+        (apdu.p1  == 0x04U) &&
+        (apdu.p2  == 0x00U))
+    {
+        ...
+        /* FIDO selected (as per 11.3.3. Applet selection) */
+        if ((apdu.lc == sizeof(FIDO_AID)) &&
+            (memcmp(apdu.data, FIDO_AID, sizeof(FIDO_AID))) == 0)
+        {
+            ...
+            return nfc_put_sw(tx_buf, NFC_SW_OK);
+        }
+
+        /* NDEF selected, proceed with handshake */
+        if ((apdu.lc == sizeof(NDEF_AID)) &&
+            (memcmp(apdu.data, NDEF_AID, sizeof(NDEF_AID))) == 0)
+        {
+            ...
+            return nfc_put_sw(tx_buf, NFC_SW_OK);
+        }
+
+        /* Unknown request */
+        ...
+        return nfc_put_sw(tx_buf, NFC_SW_FILE_NOT_FOUND);
+    }
+
+    /* 4. - Handle the request in the context of the selected app */
+    switch (ctx->selected_app)
+    {
+        case APP_FIDO:
+            ...
+
+        case APP_NDEF:
+           ...
+        default:
+            return nfc_put_sw(tx_buf, NFC_SW_COND_NOT_SATISFIED);
+    }
+}
+\endtt
+
+\nl The parser supports all defined APDU formats and handles edge cases (i.e. wrong length or unsupported CLA) according to \cite[iso14443-4]. The implementation supports both CTAP2-related communication and basic NDEF communication. The NDEF state machine exposes a static NDEF file containing a single URI record that directs the user to the lionkey.dev website.
+
+\begtt
+static const uint8_t NDEF_FILE[] = {
+0x00, 0x10, // NLEN (16 bytes)
+0xD1, // NDEF Record Header
+0x01, // TYPE LENGTH = 1 byte
+0x0C, // PAYLOAD LENGTH = 12 bytes
+0x55, // TYPE = 'U' (URI Record)
+0x01, // URI Identifier Code (https://)
+0x6C, 0x69, 0x6F, 0x6E, 0x6B, 0x65, 0x79, 0x2E, 0x64, 0x65, 0x76 
+/* lionkey.dev */
+};
+\endtt
+
+\nl CTAP2 short-APDU commands that exceed the NFC frame size are split across multiple APDUs using command (APDU) chaining, as requested by \cite[fido-ctap-documentation]. The transaction handler accumulates chained fragments into chain_buf before passing the reassembled payload to the CTAP2 processing layer.
+
+
