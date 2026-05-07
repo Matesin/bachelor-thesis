@@ -102,6 +102,8 @@ on direction and data rate:
 * {\sbf PICC to PCD}: Binary Phase Shift Keying (BPSK) modulation of a subcarrier (fc/16), which allows the card to respond without being overwhelmed by the reader's transmitted signal. The initial phase of the subcarrier represents logical 1 and a 180 degree shift represents a logical 0.
 \enditems
 
+\leavevmode 
+
 \nl The lower modulation index results in {\sbf improved robustness} against electromagnetic interference. This means that NFC-B is more suitable for applications requiring high reliability.
 
 \secc[nfc-f] NFC-F
@@ -195,7 +197,9 @@ Upon receiving a valid REQA or WUPA, all eligible PICCs respond simultaneously w
 \caption/t ATQA structure.
 \endinsert
 
-If multiple PICCs respond in the same slot, their ATQA frames collide at the bit level. The PCD detects this and proceeds with the anticollision loop to isolate individual cards.
+\leavevmode
+
+\nl If multiple PICCs respond in the same slot, their ATQA frames collide at the bit level. The PCD detects this and proceeds with the anticollision loop to isolate individual cards.
 
 \seccc[nfc-a-uid] UID Structure and Cascade Levels
 NFC-A PICCs have UIDs of three possible lengths, each requiring a different number of cascade levels to fully resolve:
@@ -205,7 +209,9 @@ NFC-A PICCs have UIDs of three possible lengths, each requiring a different numb
 * {\sbf Triple (10 bytes)} - resolved across three cascade levels (CL1, CL2, CL3)
 \enditems
 
-Each cascade level transmits 4 bytes of UID data at a time. When more levels remain, the first byte of the current level is set to the {\sbf Cascade Tag (CT, value \code{0x88})}, signaling to the PCD that the UID continues in a subsequent cascade level.
+\leavevmode 
+
+\nl Each cascade level transmits 4 bytes of UID data at a time. When more levels remain, the first byte of the current level is set to the {\sbf Cascade Tag} (CT, value \code{0x88}), signaling to the PCD that the UID continues in a subsequent cascade level.
 
 \seccc[nfc-a-loop] Anticollision Loop
 
@@ -245,7 +251,9 @@ The following sequence repeats for each required cascade level:
 \caption/t SAK bit~2 and bit~5 interpretation.
 \endinsert
 
-Once all cascade levels are resolved and the final SAK confirms a complete UID, the PICC transitions to {\sbf ACTIVE} state. If the SAK additionally indicates ISO-DEP support (bit 5 set), the PCD may proceed with a RATS command to initiate the ISO-DEP protocol. Otherwise, the PICC continues with its own proprietary protocol.
+\leavevmode
+
+\nl Once all cascade levels are resolved and the final SAK confirms a complete UID, the PICC transitions to {\sbf ACTIVE} state. If the SAK additionally indicates ISO-DEP support (bit 5 set), the PCD may proceed with a RATS command to initiate the ISO-DEP protocol. Otherwise, the PICC continues with its own proprietary protocol.
 
 \sec[nfc-protocols] Communication Protocols
 
@@ -281,7 +289,9 @@ Before data exchange can begin, ISO-DEP requires an activation phase in which th
 \caption/t RATS structure.
 \endinsert
 
-The ATS response consists of a total length value (TL), format byte (T0), optional interface bytes (TA, TB, TC) and optional Historical Bytes (up to 15 bytes). These fields define key communication parameters, including timing constraints and frame sizes.
+\leavevmode
+
+\nl The ATS response consists of a total length value (TL), format byte (T0), optional interface bytes (TA, TB, TC) and optional Historical Bytes (up to 15 bytes). These fields define key communication parameters, including timing constraints and frame sizes.
 
 \midinsert \clabel[table-ats]{ATS message structure}
 \ctable{c|c|c|c|c|c|c|c|c}{
@@ -291,7 +301,9 @@ The ATS response consists of a total length value (TL), format byte (T0), option
 \caption/t ATS structure.
 \endinsert
 
-The interface bytes can contain these values: 
+\leavevmode 
+
+\nl The interface bytes can contain these values: 
 
 \begitems
 * {\sbf Frame Waiting Time (FWT)} 
@@ -313,7 +325,9 @@ The interface bytes can contain these values:
 \nl Optional data included in the ATS, they are to be interpreted according to the card manufacturer's specifications , they may provide additional information about the capabilities of the card if present.
 \enditems
 
-Correct configuration and handling of these parameters is essential to ensure compatibility with readers and mobile devices. Strict adherence to timing constraints, such as the frame waiting time, is required to prevent premature session termination.
+\leavevmode 
+
+\nl Correct configuration and handling of these parameters is essential to ensure compatibility with readers and mobile devices. Strict adherence to timing constraints, such as the frame waiting time, is required to prevent premature session termination.
 
 \seccc[nfc-iso-dep-data] Data Exchange
 
@@ -340,7 +354,9 @@ ISO-DEP serves as the transport layer for {\sbf Application Protocol Data Units 
 \caption/t Byte-level structure of short C-APDUs.
 \endinsert
 
-In the extended format, the presence of the leading \code{0x00} byte indicates extended length encoding, followed by two-byte length fields for Lc and Le. The exact position of Le depends on the APDU case.
+\leavevmode 
+
+\nl In the extended format, the presence of the leading \code{0x00} byte indicates extended length encoding, followed by two-byte length fields for Lc and Le. The exact position of Le depends on the APDU case.
 
 \midinsert
 \clabel[table-apdu-extended-layout]{Extended C-APDU byte layout}
@@ -350,6 +366,8 @@ In the extended format, the presence of the leading \code{0x00} byte indicates e
 }
 \caption/t Byte-level structure of extended C-APDUs.
 \endinsert
+
+\leavevmode
 
 \nl Response APDUs consist of an optional data field followed by a mandatory two-byte status word (SW1, SW2). 
 
@@ -379,7 +397,9 @@ R-APDU: 46 49 44 4F 5F 32 5F 30   90 00
         \_______ Data ________/ \SW1 SW2/
 \endtt
 
-In this example, the C-APDU consists of the following fields: CLA~=~\code{0x00} (interindustry class byte - a standard entry point for commands), INS~=~\code{0xA4} (SELECT instruction), P1~=~\code{0x04} (selection by name) and P2~=~\code{0x00}. The field Lc~=~\code{0x08} specifies the length of the data field, which contains the 8-byte FIDO application identifier (AID) (\code{A0 00 00 06 47 2F 00 01}). After processing this message, the device responds with an R-APDU.
+\leavevmode
+
+\nl In this example, the C-APDU consists of the following fields: CLA~=~\code{0x00} (interindustry class byte - a standard entry point for commands), INS~=~\code{0xA4} (SELECT instruction), P1~=~\code{0x04} (selection by name) and P2~=~\code{0x00}. The field Lc~=~\code{0x08} specifies the length of the data field, which contains the 8-byte FIDO application identifier (AID) (\code{A0 00 00 06 47 2F 00 01}). After processing this message, the device responds with an R-APDU.
 
 \nl The R-APDU contains the response data followed by the status word. The data field corresponds to the ASCII string ``FIDO\_2\_0'', while the status word~\code{0x9000} indicates successful execution of the command.
 

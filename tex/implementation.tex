@@ -120,6 +120,8 @@ reinitialize the context for a new session.
 \caption /f PlantUML diagram of the implemented state machine.
 \endinsert
 
+\leavevmode 
+
 \nl Management of the communication state machine is performed by periodic polling of the exchange status provided with the RFAL library. Although an interrupt-driven approach would normally be more suitable in an embedded device, we opted to follow the same coding practices as the original project. Therefore, polling is used for transaction handling instead of interrupts. The IRQ line is, however, used internally by the RFAL for its own state machine handling.
 
 \begtt
@@ -161,6 +163,8 @@ static bool nfc_poll_transmission_status(transmission_line_t line)
 }
 \endtt
 
+\leavevmode 
+
 \nl Upon receiving an APDU from the reader (PROCESS_RX), the message is parsed and processed according to its semantics:
 
 \begtt
@@ -186,6 +190,8 @@ static bool nfc_handle_process_rx(void)
     return false;
 }
 \endtt 
+
+\leavevmode
 
 \nl The current context of the ISO-DEP state is managed by the t4t_context struct:
 
@@ -228,6 +234,8 @@ typedef struct
 
 } t4t_context_t;
 \endtt
+
+\leavevmode
 
 \nl And the incoming APDU is processed as follows:
 
@@ -297,6 +305,8 @@ uint16_t nfc_parse_and_respond(t4t_context_t *ctx,
 }
 \endtt
 
+\leavevmode
+
 \nl The parser supports all defined APDU formats and handles edge cases (i.e., incorrect length or unsupported CLA) according to \cite[iso7816-4]. The implementation follows the NFC Forum Type 4 Tag specification and supports both CTAP2-related communication and basic NDEF communication, thus fulfilling the goal of the thesis of ``Demonstrating basic NFC functionality''. 
 
 \nl The NDEF state machine exposes a static NDEF file that contains a single URI record that directs the user to the lionkey.dev website.
@@ -313,6 +323,8 @@ static const uint8_t NDEF_FILE[] = {
 /* lionkey.dev */
 };
 \endtt
+
+\leavevmode
 
 \nl CTAP2 short-APDU responses that exceed the NFC frame size are split across multiple APDUs using chaining (note that we are referring to APDU chaining, not ISO-DEP chaining which is done internally by RFAL), as requested by \cite[fido-ctap-documentation]. The transaction handler accumulates chained fragments into chain_buf before passing the reassembled payload to the CTAP2 processing layer. The first chunk of the response is sent when handling the CTAP request:
 
@@ -334,6 +346,8 @@ uint8_t remaining = (ctx->chain_len > 0xFFU) ? 0xFFU
 uint16_t chain_sw = (uint16_t)(NFC_SW_CHAIN | remaining);
     
 \endtt
+
+\leavevmode
 
 \nl And the subsequent chunks are send after receiving a \code{CTAP_CHAIN} C-APDU:
 

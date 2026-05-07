@@ -17,6 +17,7 @@ The evaluation process was structured in two stages, corresponding to different 
 \picheight = 50mm \cinspic ../images/testing-setup.jpeg
 \caption /f Evaluation Setup used for testing with computers.
 \endinsert
+\leavevmode
 
 \nl The evaluation considered not only the successful command processing, but also the correctness of the protocol, the latency of the response, and the overall success rate of communication exchanges. In addition, selected negative test cases involving unsupported or malformed APDU commands were performed to assess the robustness of the implementation. Particular attention was paid to timing constraints imposed by the ISO-DEP protocol, as these are critical for interoperability with mobile devices.
 
@@ -60,6 +61,8 @@ The testing of CTAP functionality demonstrated stable and consistent behavior ac
 \caption /f Device log of processing an APDU containing a CTAP_GETINFO command.
 \endinsert
 
+\leavevmode
+
 \nl For iOS and Windows devices, no deviations were observed from the expected behavior of the CTAP2 protocol, and the implementation exhibited complete interoperability with standard client platforms.
 
 \nl The tests conducted on the evaluated Samsung Galaxy S22+ did not demonstrate successful CTAP2 with respect to NFC interoperability. This may reflect the limitations of the platform, the vendor, or the software-stack rather than the universal Android ecosystem. The experimental evaluation indicates that the interaction is limited to the legacy U2F protocol (Universal Second Factor). While CTAP2 functionality was successfully verified when the LionKey device was connected via USB, attempts to establish CTAP2-based communication over NFC consistently failed. Instead, the Android system, upon receiving a response associated with the U2F protocol, issued commands consistent with this protocol, suggesting a fallback to legacy behavior in accordance with earlier FIDO Alliance specifications. Since LionKey only supports the CTAP2 standard, it is impossible to comply with Android devices at this point.
@@ -94,7 +97,9 @@ The NDEF functionality was evaluated using a URI record to verify correct Type~4
 * READ BINARY command to retrieve the NDEF message.
 \enditems
 
-This sequence was executed consistently on all devices tested without deviation.
+\leavevmode 
+
+\nl This sequence was executed consistently on all devices tested without deviation.
 
 \midinsert
 \clabel[img-ndef-flow]{NDEF Flow}
