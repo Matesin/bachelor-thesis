@@ -103,7 +103,7 @@ The NDEF functionality was evaluated using a URI record to verify correct Type~4
 
 \midinsert
 \clabel[img-ndef-flow]{NDEF Flow}
-\picheight = 90mm \cinspic ../images/nfc-ndef-flow.png
+\picheight = 100mm \cinspic ../images/nfc-ndef-flow.png
 \caption /f Device Log of the NDEF Communication Flow
 \endinsert
 
@@ -111,12 +111,14 @@ The NDEF functionality was evaluated using a URI record to verify correct Type~4
 
 \nl We also verified correct state machine behavior by manually sending APDUs containing both valid and invalid NDEF commands. This included checking proper handling of file selection and data access as well as handling of invalid APDUs.
 
+\break
+
 \secc Use of CTAP on Real WebAuthn-enabled Websites
 
 The implementation was further evaluated in real-world scenarios by testing it on WebAuthn-enabled websites. The authentication process was verified by authenticating on the WebAuthn demo and on Google.
 
 \midinsert
 \clabel[img-wa-flow-2]{Webauthn Authentication Flow }
-\picheight = 90mm \cinspic ../images/wa-flow-merged.png
+\picheight = 100mm \cinspic ../images/wa-flow-merged.png
 \caption /f  WebAuthn LionKey passkey registration flow via NFC on the iPhone.
 \endinsert

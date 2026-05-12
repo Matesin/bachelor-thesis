@@ -29,14 +29,14 @@
     \vbox to0pt{\vskip-32mm\centerline{\inspic {../files/thesis_assignment_p2.pdf}} \vss}
 }
 \declaration {      % Use main language here
-   
+   \vbox to0pt{\vskip-32mm\centerline{\inspic {../files/declaration.pdf}} \vss}
 }
 \abstractEN {
    This bachelor's thesis focuses on implementing NFC support for the LionKey hardware security key, which serves as an external FIDO2 external authenticator. The aim of this thesis is to extend the capabilities of the existing device by implementing an NFC communication interface on top of the existing solution, allowing the key to communicate with devices equipped with an NFC reader, especially mobile phones.
 
    The thesis describes the theoretical principles of NFC technology, the related communication standards, and their relevance to the use of security keys in authentication mechanisms. It also focuses on the design and implementation of an NFC interface for the LionKey platform, its integration into the existing device architecture, and the verification of the resulting solution.
 
-   The result of this thesis is a functional implementation of NFC communication for the LionKey security key using the STEVAL-D25R16B platform. The resulting implementation is publicly available on GitHub. It extends the device's capabilities by allowing its use with services supporting WebAuthn.
+   The result of this thesis is a functional implementation of NFC communication for the LionKey security key using the STEVAL-D25R16B platform. The resulting implementation is publicly available on GitHub. It extends the device's capabilities by allowing its use with WebAuthn-allowed services.
 }
 \abstractCZ {
    Tato bakalářská práce se zabývá implementací podpory technologie NFC pro hardwarový bezpečnostní klíč LionKey, který slouží jako externí FIDO2 autentizátor. Cílem práce je rozšířit existující zařízení o komunikační rozhraní umožňující jeho použití také se zařízeními vybavenými NFC čtečkou, zejména pak s mobilními telefony.
@@ -47,14 +47,17 @@
 }           % If your language is Slovak use \abstractSK instead \abstractCZ
 
 \keywordsEN {%
-   NFC, WebAuthn, CTAP2, hardware~security~key, ISO/IEC-14443, LionKey
+   FIDO2, WebAuthn, CTAP2, Near-Field Communication, NFC, security key, passkeys, authenticator, passwordless authentication, multi-factor authentication, MFA, ISO/IEC-14443, LionKey
+
 }
 \keywordsCZ {%
-   NFC, WebAuthn, CTAP2, hardwarový~bezpečnostní~klíč, ISO/IEC-14443, LionKey
+   FIDO2, WebAuthn, CTAP2, Near-Field Communication, NFC, bezpečnostní klíč, passkeys, autentizátor, bezheslová autentizace, vícefaktorová autentizace, MFA, ISO/IEC-14443, LionKey
 }
 
 \thanks {           % Use main language here
-   I would like to thank my supervisor, Ing.~Jan~Sobotka,~Ph.D. for his guidance and assistance, doc.~Ing.~Jiří~Novák,~Ph.D. for introducing me to the topic of this thesis and to Ing.~Martin~Endler for his patience, enthusiasm and for the trust he put in me in continuing his LionKey project. Also, I would like to thank my father for always supporting me throughout my studies and to Mgr.~Zdeněk~Vítek for being the Czech Biathlon GOAT.
+   I would like to thank my supervisor, Ing.~Jan~Sobotka,~Ph.D. for his guidance and assistance, doc.~Ing.~Jiří~Novák,~Ph.D. for introducing me to the topic of this thesis and to Ing.~Martin~Endler for his patience, enthusiasm and for the trust he put in me in continuing his LionKey project. 
+   
+   \nl Furhermore, I would like to thank my family, especially my father, for supporting me at all times.
 }
 
 \input glossary

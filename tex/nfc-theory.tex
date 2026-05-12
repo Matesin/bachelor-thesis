@@ -30,7 +30,9 @@ In NFC communication, two roles are distinguished according to which device init
 \nl The device that responds to the initiator. Depending on the communication mode, it can passively modulate the initiator’s field or actively generate its own signal. Typical examples include contactless smart cards, NFC tags, or peer devices. 
 \enditems
 
-It is important to distinguish these roles from the physical ability to generate an electromagnetic field. In passive communication mode, the initiator generates the RF field. In active communication mode, both devices are capable of generating their own RF field during their respective transmission phases.
+\leavevmode
+
+\nl It is important to distinguish these roles from the physical ability to generate an electromagnetic field. In passive communication mode, the initiator generates the RF field. In active communication mode, both devices are capable of generating their own RF field during their respective transmission phases.
 
 \nl NFC defines two communication modes based on how the electromagnetic field is generated and how the devices are powered: {\sbf active mode} and {\sbf passive mode}.
 
@@ -66,7 +68,9 @@ The NFC Forum defines {\sbf three} primary {\sbf operating modes} that determine
 
 \enditems
 
-These operating modes build upon the previously described concepts of initiator and target roles, as well as active and passive communication modes. Their combination defines the functional behavior of NFC devices in real-world applications. 
+\leavevmode
+
+\nl These operating modes build upon the previously described concepts of initiator and target roles, as well as active and passive communication modes. Their combination defines the functional behavior of NFC devices in real-world applications. 
 
 \sec[nfc-rf-technologies] NFC RF Technologies
 \secc[nfc-a] NFC-A
@@ -87,7 +91,7 @@ on direction and data rate:
 \midinsert
 \clabel[img-nfc-modulation]{NFC Modulation}
 \picheight = 60mm \cinspic ../images/nfc-modulation.png
-\caption /f Examples of NFC A and B modulation at 106 kbit/s \cite[iso14443-2]
+\caption /f Examples of NFC-A and NFC-B modulation \cite[iso14443-2]
 \endinsert
 
 \secc[nfc-b] NFC-B
@@ -236,7 +240,7 @@ The following sequence repeats for each required cascade level:
 \midinsert \clabel[table-anticollision]{ANTICOLLISION command structure}
 \ctable{c|c|c|c|c|c|c|c}{
 \hfil SEL & \multispan4 NVB \vrule & UID CLn & BCC & E\crl \tskip5pt
- CL(1-3) & 0 & byte count & 0 & bit count & 0--4 bytes (NVB) & & \crl
+ CL & 0 & byte cnt. & 0 & bit cnt. & 0--4 bytes (NVB) & & \crl
 }
 \caption/t ANTICOLLISION command structure. 
 \endinsert
@@ -296,7 +300,7 @@ Before data exchange can begin, ISO-DEP requires an activation phase in which th
 \midinsert \clabel[table-ats]{ATS message structure}
 \ctable{c|c|c|c|c|c|c|c|c}{
 \hfil TL & T0 & TA(1) & TB(1) & TC(1) & T1 & $T_k$ & CRC1 & CRC2 \crl \tskip5pt
- & & \multispan3 interface \vrule & & historical bytes  & & \crl
+ & & \multispan3 interface \vrule & & HB  & & \crl
 }
 \caption/t ATS structure.
 \endinsert
@@ -362,7 +366,7 @@ ISO-DEP serves as the transport layer for {\sbf Application Protocol Data Units 
 \clabel[table-apdu-extended-layout]{Extended C-APDU byte layout}
 \ctable{c|c|c|c|c|c|c|c}{
 \hfil CLA & INS & P1 & P2 & 00 & Lc(Hi) & Lc(Lo) & Data/Le \crl \tskip5pt
-1B & 1B & 1B & 1B & ext. marker & \multispan2 length \vrule & variable \crl
+1B & 1B & 1B & 1B & extended & \multispan2 length \vrule & variable \crl
 }
 \caption/t Byte-level structure of extended C-APDUs.
 \endinsert
