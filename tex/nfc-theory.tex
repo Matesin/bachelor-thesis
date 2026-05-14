@@ -173,7 +173,6 @@ The NFC-A state machine has the following States:
 \caption /f PlantUML diagram of the NFC initialization flow.
 \endinsert
 
-
 \secc[nfc-a-anticollision] NFC-A Initialization and Anticollision
 
 NFC-A uses a {\sbf bit-frame anticollision} method based on binary tree traversal. Since multiple PICCs may respond simultaneously to a REQA or WUPA command, their signals can overlap and corrupt each other, this is called a {\sbf collision}. The anticollision loop resolves collisions iteratively by narrowing down the UID of each card in the field. This overview focuses solely on the NFC-A procedures, although the standard also specifies behavior for hybrid tags supporting both the NFC-A and NFC-B types.
@@ -182,16 +181,20 @@ NFC-A uses a {\sbf bit-frame anticollision} method based on binary tree traversa
 
 \seccc[nfc-a-polling] Polling
 
-Before sending a REQA command, the PCD must present an unmodulated RF field for a minimum of {\sbf 5.1 ms}. This ensures passive PICCs, which rely on energy harvesting, are sufficiently powered before they are expected to respond. The PCD then broadcasts REQA to poll all Type A PICCs in IDLE state, or WUPA to additionally wake PICCs in HALT state.
+Before sending a REQA command, the PCD must present an unmodulated RF field for a minimum of {\sbf 5.1 ms}. This ensures that passive PICCs, which rely on energy harvesting, are sufficiently powered before they are expected to respond. The PCD then broadcasts REQA to poll all Type A PICCs in IDLE state, or WUPA to additionally wake PICCs in HALT state.
 
 \seccc[nfc-a-atqa] Answer To reQuest (ATQA)
 
-Upon receiving a valid REQA or WUPA, all eligible PICCs respond simultaneously with an {\sbf ATQA (Answer To reQuest, Type A)}, a 2-byte frame encoding:
+Upon receiving a valid REQA or WUPA, all eligible PICCs respond simultaneously with an {\sbf ATQA (Answer To reQuest, Type A)}, a 2-byte frame encoding (see Table \tef[table-atqa]:
 \begitems
 
 * {\sbf Bit frame anticollision indicator} - which bit position is used as the anticollision entry point in the binary tree traversal
-* {\sbf UID size indicator} - whether the UID is 4, 7, or 10 bytes, determining how many cascade levels the anticollision loop must traverse
+* {\sbf UID size indicator} - whether the UID is 4, 7 or 10 bytes, determining how many cascade levels the anticollision loop must traverse.
 \enditems
+
+\leavevmode
+
+\nl If multiple PICCs respond in the same slot, their ATQA frames collide at the bit level. The PCD detects this and proceeds with the anticollision loop to isolate individual cards.
 
 \midinsert \clabel[table-atqa]{ATQA message structure}
 \ctable{c|c}{
@@ -200,10 +203,6 @@ Upon receiving a valid REQA or WUPA, all eligible PICCs respond simultaneously w
 }
 \caption/t ATQA structure.
 \endinsert
-
-\leavevmode
-
-\nl If multiple PICCs respond in the same slot, their ATQA frames collide at the bit level. The PCD detects this and proceeds with the anticollision loop to isolate individual cards.
 
 \seccc[nfc-a-uid] UID Structure and Cascade Levels
 NFC-A PICCs have UIDs of three possible lengths, each requiring a different number of cascade levels to fully resolve:
@@ -223,7 +222,7 @@ The following sequence repeats for each required cascade level:
 
 \begitems
 
-* The PCD sends an {\sbf ANTICOLLISION} command specifying the current cascade level (CL1 (0x93), CL2 (0x95), or CL3 (0x97)) and an {\sbf NVB (Number of Valid Bits)} field indicating how many leading bits of the UID are already known. Initially NVB = 0, meaning no bits are known yet.
+* The PCD sends an {\sbf ANTICOLLISION} command (see Table \ref[table-anticollision]) specifying the current cascade level (CL1 (0x93), CL2 (0x95), or CL3 (0x97)) and an {\sbf NVB (Number of Valid Bits)} field indicating how many leading bits of the UID are already known. Initially NVB = 0, meaning no bits are known yet.
 
 * All PICCs in READY (or READY$^*$) state whose UID matches the known prefix respond with their remaining UID bits.
 
@@ -233,7 +232,7 @@ The following sequence repeats for each required cascade level:
 
 * Once the full 4-byte UID fragment for the current level is known, the PCD issues a {\sbf SELECT} command containing the complete fragment and a {\sbf BCC (Block Check Character)}, which is the XOR of the four UID bytes, used for integrity verification.
 
-* The addressed PICC responds with a {\sbf SAK (Select AcKnowledge)}, confirming selection. The SAK also indicates whether further cascade levels are required (bit 2 of SAK set) or whether the full UID has been resolved (bit 2 cleared).
+* The addressed PICC responds with a {\sbf SAK (Select AcKnowledge)}, confirming selection (Table \ref[table-anticollision]). The SAK also indicates whether further cascade levels are required (bit 2 of SAK set) or whether the full UID has been resolved (bit 2 cleared).
 
 \enditems
 
@@ -271,9 +270,9 @@ The {\sbf ISO-DEP} (ISO Data Exchange Protocol), specified in~\cite[iso14443-4],
 
 Before data exchange can begin, ISO-DEP requires an activation phase in which the initiator selects the target and negotiates communication parameters. This is performed using the RATS (Request for Answer To Select) and ATS (Answer To Select) mechanism.
 
-\nl First, the reader sends a RATS (Request for Answer to Select) command. RATS is a 2-byte command consisting of a fixed command byte (E0) and a parameter proposal byte (PP).
+\nl First, the reader sends a RATS (Request for Answer to Select) command (see Table \ref[table-rats]). RATS is a 2-byte command consisting of a fixed command byte (E0) and a parameter proposal byte (PP).
 
-\nl RATS consists of a fixed command byte \code{0xE0} followed by a parameter byte. The upper nibble of the parameter byte encodes the Frame Size for Device Integer (FSDI), while the lower nibble encodes the Card Identifier (CID), which logically addresses a specific card when multiple cards are in the field. This value remains assigned to the PICC until it leaves the field. CID=15 is reserved.
+\nl RATS consists of a fixed command byte \code{0xE0} followed by a parameter byte. The upper nibble of the parameter byte encodes the Frame Size for Device Integer (FSDI); the conversions from FSDI to FSD are shown in Table \ref[table-fsdi-conversion]. The lower nibble of RATS encodes the Card Identifier (CID), which logically addresses a specific card when multiple cards are in the field. This value remains assigned to the PICC until it leaves the field. CID=15 is reserved. 
 
 \midinsert \clabel[table-fsdi-conversion]{FSDI to FSC conversion}
 \ctable{c|c|c|c|c|c|c|c}{
@@ -295,7 +294,7 @@ Before data exchange can begin, ISO-DEP requires an activation phase in which th
 
 \leavevmode
 
-\nl The ATS response consists of a total length value (TL), format byte (T0), optional interface bytes (TA, TB, TC) and optional Historical Bytes (up to 15 bytes). These fields define key communication parameters, including timing constraints and frame sizes.
+\nl The ATS response consists of a total length value (TL), format byte (T0), optional interface bytes (TA, TB, TC) and optional Historical Bytes (up to 15 bytes). These fields define key communication parameters, including timing constraints and frame sizes. This is illustrated in Table \ref[table-ats].
 
 \midinsert \clabel[table-ats]{ATS message structure}
 \ctable{c|c|c|c|c|c|c|c|c}{
@@ -310,32 +309,58 @@ Before data exchange can begin, ISO-DEP requires an activation phase in which th
 \nl The interface bytes can contain these values: 
 
 \begitems
-* {\sbf Frame Waiting Time (FWT)} 
-\nl  Specifies the maximum time the initiator waits for a response from the target. It is derived from the Frame Waiting Time Integer (FWI) in TB(1) and directly influences the allowable processing time of the card. Violating this constraint typically results in termination of the NFC session.
-
-* {\sbf Waiting Time Extension (WTX)} 
-\nl Allows the target to request additional processing time beyond the configured FWT via a special block. This mechanism is essential for operations involving computationally intensive tasks, such as cryptographic processing.
 
 * {\sbf Frame Size (FSC/FSD)}
 \nl Defined by the FSCI field in T0, it specifies the maximum payload size of a single frame for the PICC (FSC) and the PCD (FSD), determining whether chaining is required.
 
+* {\sbf Frame Waiting Time (FWT)} 
+\nl  Specifies the maximum time the initiator waits for a response from the target. It is derived from the Frame Waiting Time Integer (FWI) in TB(1) using the formula: 
+$$
+\mathrm{FWT} = {256 \times 16 \over f_c} \times 2^{\mathrm{FWI}}
+$$
+
 * {\sbf Frame Guard Time (FGT)} 
-\nl Derived from the Guard Time Integer (GTI) in TB, FGT specifies the {\sbf minimum delay the target must observe between receiving a frame and sending its response}. This prevents receiver saturation and ensures reliable synchronization.
+\nl Derived from the Guard Time Integer (GTI) in TB(1), FGT specifies the {\sbf minimum delay the target must observe between receiving a frame and sending its response}. This prevents receiver saturation and ensures reliable synchronization.
 
 * {\sbf Device Identifier (CID)}
-\nl When there are multiple cards present in the field, the initiator can use CID (0–14) to address a specific card. If not used, the CID is typically set to 0 or completely omitted.
+\nl When there are multiple cards present in the field, the initiator can use CID (0–14), specified in TC(1), to address a specific card. If not used, the CID is typically set to 0 or completely omitted.
+
+* {\sbf Node Address Support (NAD)}
+\nl TC(1) may also indicate support for the optional NAD mechanism used for logical node addressing at higher protocol layers. In practice, NAD is rarely implemented in modern NFC devices.
 
 * {\sbf Historical Bytes (HB)}
-\nl Optional data included in the ATS, they are to be interpreted according to the card manufacturer's specifications , they may provide additional information about the capabilities of the card if present.
+\nl Optional data included in the ATS; they are to be interpreted according to the card manufacturer's specifications, and they may provide additional information about the capabilities of the card if present.
 \enditems
 
-\leavevmode 
+\seccc[nfc-iso-dep-data] Data Exchange Blocks
 
-\nl Correct configuration and handling of these parameters is essential to ensure compatibility with readers and mobile devices. Strict adherence to timing constraints, such as the frame waiting time, is required to prevent premature session termination.
+Communication in {\sbf ISO-DEP} is organized into protocol data units (blocks), which are exchanged between the initiator and the target. Three types of blocks are defined: {\sbf I-Blocks} (Information blocks) to carry application data, {\sbf R-Blocks} for acknowledgments and retransmission requests, and {\sbf S-Blocks} (Supervisory blocks) used for control messages. Each block begins with a one-byte {\sbf PCB} (Protocol Control Byte), which identifies the block type and carries protocol control information such as block numbering, acknowledgment status, chaining indication, or supervisory commands. Blocks can also contain the optional one-byte{\sbf CID} and {\sbf NAD} fields. I-Blocks and S-Blocks may also contain an {\sbf INF} field for application or supervisory data, respectively. The maximum size of the INF field is determined by ({\sbf FSC/FSD}). The structure of the blocks can be seen in Tables \ref[table-i-block], \ref[table-r-block] and \ref[table-s-block].
 
-\seccc[nfc-iso-dep-data] Data Exchange
+\midinsert \clabel[table-i-block]{ISO-DEP I-block structure}
+\ctable{c|c|c|c|c|c}{
+\hfil PCB & CID & NAD & INF & CRC1 & CRC2 \crl \tskip5pt
+0x00 & optional & optional & data (max. FSC bytes) & & \crl
+}
+\caption/t  ISO-DEP I-block structure.
+\endinsert
 
-Communication in {\sbf ISO-DEP} is organized into protocol data units (blocks), which are exchanged between the initiator and the target. Three types of blocks are defined: {\sbf I-Blocks} to carry application data, {\sbf R-Blocks} for acknowledgments and retransmission requests, and {\sbf S-Blocks} for control operations such as waiting time extension or protocol deactivation. This structure ensures reliable communication even in the presence of transmission errors.
+
+\midinsert \clabel[table-r-block]{ISO-DEP R-block structure}
+\ctable{c|c|c|c|c}{
+\hfil PCB & CID & ACK / NACK & CRC1 & CRC2 \crl \tskip5pt
+0x80 & optional &  status & & \crl
+}
+\caption/t ISO-DEP R-block structure.
+\endinsert
+
+
+\midinsert \clabel[table-s-block]{ISO-DEP S-block structure}
+\ctable{c|c|c|c|c}{
+\hfil PCB & CID & INF & CRC1 & CRC2 \crl \tskip5pt
+0xC0 & optional & data & & \crl
+}
+\caption/t ISO-DEP S-block structure.
+\endinsert
 
 \seccc[nfc-apdu] APDU
 
