@@ -8,9 +8,7 @@ The evaluation process was structured in two stages, corresponding to different 
 
 \nl In the second stage, the communication capabilities of the device were evaluated. Both supported application layers, CTAP and NDEF URI handling, were tested. Interoperability testing was conducted using consumer mobile devices as well as personal computers.
 
-\nl The mobile devices used for the testing were multiple iPhone devices ranging from iPhone 11 to iPhone 15 with iOS 18 to iOS 26, and a Samsung Galaxy S22+, representing the dominant mobile platforms, iOS and Android. Regarding personal computers, Apple does not allow the use of NFC security keys on Mac\urlnote{https://support.apple.com/en-us/102637}, therefore, the evaluation was conducted using a Windows device.
-
-\nl This allowed for evaluation under realistic usage conditions and comparison with results obtained from the external reader.
+\nl The mobile devices used for the testing were multiple iPhone devices ranging from iPhone 11 to iPhone 15 with iOS 18 to iOS 26, and a Samsung Galaxy S22+, representing the dominant mobile platforms, iOS and Android. Regarding personal computers, Apple does not allow the use of NFC security keys on Mac\urlnote{https://support.apple.com/en-us/102637}.
 
 \midinsert
 \clabel[img-nfc-testing-setup]{Evaluation Setup}
@@ -53,7 +51,7 @@ Successful retrieval of these parameters demonstrates that the device correctly 
 
 \secc[fido-handling] CTAP Handling
 
-The testing of CTAP functionality demonstrated stable and consistent behavior across multiple client platforms, including Apple iOS devices and Windows-based systems. The complete authentication workflow, comprising both credential registration (MakeCredential) and subsequent authentication (GetAssertion), was successfully executed in all evaluated scenarios. The correctness of the implementation was verified using platform-native WebAuthn interfaces and publicly available testing tools, ensuring that the exchanged messages and responses adhered to the specifications defined by the FIDO Alliance. 
+The testing of CTAP functionality demonstrated stable and consistent behavior across multiple client platforms. The complete authentication workflow, comprising both credential registration (MakeCredential) and subsequent authentication (GetAssertion), was successfully executed in all evaluated scenarios. The correctness of the implementation was verified using platform-native WebAuthn interfaces and publicly available testing tools, ensuring that the exchanged messages and responses adhered to the specifications defined by the FIDO Alliance. 
 
 \midinsert
 \clabel[img-fido-ctap-getinfo]{CTAP_GETINFO Log}
@@ -63,7 +61,7 @@ The testing of CTAP functionality demonstrated stable and consistent behavior ac
 
 \leavevmode
 
-\nl For iOS and Windows devices, no deviations were observed from the expected behavior of the CTAP2 protocol, and the implementation exhibited complete interoperability with standard client platforms.
+\nl For the iOS, no deviations were observed from the expected behavior of the CTAP2 protocol, and the implementation exhibited complete interoperability with standard client platforms.
 
 \nl The tests conducted on the evaluated Samsung Galaxy S22+ did not demonstrate successful CTAP2 with respect to NFC interoperability. This may reflect the limitations of the platform, the vendor, or the software-stack rather than the universal Android ecosystem. The experimental evaluation indicates that the interaction is limited to the legacy U2F protocol (Universal Second Factor). While CTAP2 functionality was successfully verified when the LionKey device was connected via USB, attempts to establish CTAP2-based communication over NFC consistently failed. Instead, the Android system, upon receiving a response associated with the U2F protocol, issued commands consistent with this protocol, suggesting a fallback to legacy behavior in accordance with earlier FIDO Alliance specifications. Since LionKey only supports the CTAP2 standard, it is impossible to comply with Android devices at this point.
 
@@ -111,7 +109,7 @@ The NDEF functionality was evaluated using a URI record to verify correct Type~4
 
 \nl We also verified correct state machine behavior by manually sending APDUs containing both valid and invalid NDEF commands. This included checking proper handling of file selection and data access as well as handling of invalid APDUs.
 
-\break
+\break 
 
 \secc Use of CTAP on Real WebAuthn-enabled Websites
 
