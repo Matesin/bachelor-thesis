@@ -92,7 +92,7 @@ In terms of code, the software implementation follows the practices set in the o
 \nl The communication session has ended and the NFC runtime context is reinitialized to its default configuration. The device then immediately transitions to the DISCOVERY state.
 \enditems
 
-\secc[nfc-transaction-handling] Transaction Handling
+\secc[nfc-transaction-handling] Transaction State Machine
 
 To ensure non-blocking operation and enable concurrent execution of other critical components in parallel with NFC, the card emulation task is implemented as a separate state machine (within NFC_CE_ACTIVE in \ref[img-impl-state-machine]). This secondary state machine governs the progression of individual NFC transactions, including reception and transmission phases, and consists of the following states: 
 
@@ -120,7 +120,7 @@ reinitialize the context for a new session.
 \caption /f PlantUML diagram of the implemented state machine.
 \endinsert
 
-\leavevmode 
+\seccc[nfc-transaction-handling-management] Managing the Transaction State Machine
 
 \nl Management of the communication state machine is performed by periodic polling of the exchange status provided with the RFAL library. Although an interrupt-driven approach would normally be more suitable in an embedded device, we opted to follow the same coding practices as the original project. Therefore, polling is used for transaction handling instead of interrupts. The IRQ line is, however, used internally by the RFAL for its own state machine handling.
 
@@ -191,9 +191,9 @@ static bool nfc_handle_process_rx(void)
 }
 \endtt 
 
-\leavevmode
+\leavevmode 
 
-\nl The current context of the ISO-DEP state is managed by the t4t_context struct:
+\nl The current context of the application transmission state is managed by the t4t_context struct:
 
 \begtt
 typedef struct
@@ -235,9 +235,9 @@ typedef struct
 } t4t_context_t;
 \endtt
 
-\leavevmode
+\seccc[nfc-apdu-processing] Processing APDUs
 
-\nl And the incoming APDU is processed as follows:
+\nl The incoming APDU is processed as follows:
 
 \begtt 
 uint16_t nfc_parse_and_respond(t4t_context_t *ctx, 
@@ -324,7 +324,7 @@ static const uint8_t NDEF_FILE[] = {
 };
 \endtt
 
-\leavevmode
+\seccc[nfc-apdu-chaining] Short APDU ChainingE
 
 \nl CTAP2 short-APDU responses that exceed the NFC frame size are split across multiple APDUs using chaining (note that we are referring to APDU chaining, not ISO-DEP chaining which is done internally by RFAL), as requested by \cite[fido-ctap-documentation]. The transaction handler accumulates chained fragments into chain_buf before passing the reassembled payload to the CTAP2 processing layer. The first chunk of the response is sent when handling the CTAP request:
 
