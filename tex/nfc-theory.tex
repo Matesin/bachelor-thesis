@@ -108,7 +108,7 @@ on direction and data rate:
 
 \leavevmode 
 
-\nl The lower modulation index results in {\sbf improved robustness} against electromagnetic interference. This means that NFC-B is more suitable for applications requiring high reliability.
+\nl The lower modulation index results in {\sbf improved robustness} against electromagnetic interference. This means that NFC-B is more suitable for applications requiring high reliability in noisy environments.
 
 \secc[nfc-f] NFC-F
 
@@ -185,7 +185,7 @@ Before sending a REQA command, the PCD must present an unmodulated RF field for 
 
 \seccc[nfc-a-atqa] Answer To reQuest (ATQA)
 
-Upon receiving a valid REQA or WUPA, all eligible PICCs respond simultaneously with an {\sbf ATQA (Answer To reQuest, Type A)}, a 2-byte frame encoding (see Table \tef[table-atqa]:
+Upon receiving a valid REQA or WUPA, all eligible PICCs respond simultaneously with an {\sbf ATQA (Answer To reQuest, Type A)}, a 2-byte frame encoding (see Table \ref[table-atqa]:
 \begitems
 
 * {\sbf Bit frame anticollision indicator} - which bit position is used as the anticollision entry point in the binary tree traversal
@@ -316,7 +316,7 @@ Before data exchange can begin, ISO-DEP requires an activation phase in which th
 * {\sbf Frame Waiting Time (FWT)} 
 \nl  Specifies the maximum time the initiator waits for a response from the target. It is derived from the Frame Waiting Time Integer (FWI) in TB(1) using the formula: 
 $$
-\mathrm{FWT} = {256 \times 16 \over f_c} \times 2^{\mathrm{FWI}}
+FWT = {256 \times 16 \over f_c} \times 2^{FWI}
 $$
 
 * {\sbf Frame Guard Time (FGT)} 
@@ -409,6 +409,8 @@ ISO-DEP serves as the transport layer for {\sbf Application Protocol Data Units 
 \caption/t General structure of a R-APDU.
 \endinsert
 
+\leavevmode
+
 \nl An example of APDU communication can be seen in Figure \ref[img-fido-select].
 
 \midinsert
@@ -430,7 +432,7 @@ R-APDU: 46 49 44 4F 5F 32 5F 30   90 00
 
 \leavevmode
 
-\nl \In this example, we can see the byte structure of a PCD C-APDU followed by an R-APDU, sent by the PICC. The C-APDU consists of the following fields: CLA~=~\code{0x00} (interindustry class byte - a standard entry point for commands), INS~=~\code{0xA4} (SELECT instruction), P1~=~\code{0x04} (selection by name) and P2~=~\code{0x00}. The field Lc~=~\code{0x08} specifies the length of the data field, which contains the 8-byte FIDO application identifier (AID) (\code{A0 00 00 06 47 2F 00 01}). After processing this message, the device responds with an R-APDU.
+\nl In this example, we can see the byte structure of a PCD C-APDU followed by an R-APDU, sent by the PICC. The C-APDU consists of the following fields: CLA~=~\code{0x00} (interindustry class byte - a standard entry point for commands), INS~=~\code{0xA4} (SELECT instruction), P1~=~\code{0x04} (selection by name) and P2~=~\code{0x00}. The field Lc~=~\code{0x08} specifies the length of the data field, which contains the 8-byte FIDO application identifier (AID) (\code{A0 00 00 06 47 2F 00 01}). After processing this message, the device responds with an R-APDU.
 
 \nl The R-APDU contains the response data followed by the status word. The data field corresponds to the ASCII string ``FIDO\_2\_0'', while the status word~\code{0x9000} indicates successful execution of the command.
 
