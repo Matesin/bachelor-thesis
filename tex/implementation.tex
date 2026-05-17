@@ -231,7 +231,6 @@ typedef struct
     /*!<is extended apdu being used in this context*/
     size_t resp_len_expected;
     /*!<expected response length */
-
 } t4t_context_t;
 \endtt
 
@@ -253,12 +252,11 @@ uint16_t nfc_parse_and_respond(t4t_context_t *ctx,
     /* 1. - parse APDU */
     err = nfc_parse_apdu(rx_data, rx_data_len, &apdu);
 
-
     /* 2 - handle deselect */
     if (apdu.ins == NFC_INS_DESELECT) {
         ctx->selected_app  = APP_NONE;
         ctx->selected_file = FILE_NONE;
-        ctx->chain_len     = 0U;
+        reset_chain();
         return nfc_put_sw(tx_buf, NFC_SW_OK);
     }
 
@@ -296,7 +294,6 @@ uint16_t nfc_parse_and_respond(t4t_context_t *ctx,
         case APP_FIDO:
             /* Handle short/extended APDU or chaining request */
             ...
-
         case APP_NDEF:
            ...
         default:
@@ -329,51 +326,74 @@ static const uint8_t NDEF_FILE[] = {
 \nl CTAP2 short-APDU responses that exceed the NFC frame size are split across multiple APDUs using chaining (note that we are referring to APDU chaining, not ISO-DEP chaining which is done internally by RFAL), as requested by \cite[fido-ctap-documentation]. The transaction handler accumulates chained fragments into chain_buf before passing the reassembled payload to the CTAP2 processing layer. The first chunk of the response is sent when handling the CTAP request:
 
 \begtt 
+size_t   full_len = 1U + nfc_ctap_response.length;   /* status + CBOR */
+...
+/* short, check need for chaining */
+if (full_len <= ctx->resp_len_expexted) {
+    reset_chain();
+    return nfc_build_response(nfc_ctap_response_buffer,
+                              full_len, 
+                              NFC_SW_OK, 
+                              tx_buf, 
+                              tx_buf_len);
+}
+
 if (full_len > sizeof(ctx->chain_buf))
 {
     /* Protect against oversized response */
     ctx->chain_len = 0U;
     return nfc_put_sw(tx_buf, NFC_SW_WRONG_LENGTH);
 }
-/* Handle the first chaining chunk */ 
+
+const uint16_t first_chunk = (full_len <= ctx->resp_len_expexted) ? 
+                            (uint16_t)full_len : ctx->resp_len_expexted;
 memcpy(ctx->chain_buf, nfc_ctap_response_buffer, full_len);
-ctx->chain_offset = ctx->resp_len_expexted;
-ctx->chain_len    = (uint16_t)(full_len - ctx->resp_len_expexted);
+ctx->chain_offset = first_chunk;
+ctx->chain_len    = (uint16_t)(full_len - first_chunk);
+ctx->is_chaining = true;
 
 uint8_t remaining = (ctx->chain_len > 0xFFU) ? 0xFFU
                                               : (uint8_t)ctx->chain_len;
-/* Append SW */
 uint16_t chain_sw = (uint16_t)(NFC_SW_CHAIN | remaining);
-    
+
+return nfc_build_response(ctx->chain_buf, 
+                          first_chunk, 
+                          chain_sw, 
+                          tx_buf, 
+                          tx_buf_len);
 \endtt
 
 \leavevmode
 
+\break 
+
 \nl And the subsequent chunks are send after receiving a \code{CTAP_CHAIN} C-APDU:
 
 \begtt
-// subsequent apdu chain command, append to chain buffer
-if ((size_t)ctx->chain_len + apdu->lc > sizeof(ctx->chain_buf))
-{
-    // protect against overflow
-    ctx->chain_len = 0U;
-    ctx->is_chaining = false;
-    return nfc_put_sw(tx_buf, NFC_SW_WRONG_LENGTH);
-}
-memcpy(ctx->chain_buf + ctx->chain_len, apdu->data, apdu->lc);
-ctx->chain_len += (uint16_t) apdu->lc;
+const uint16_t le = (apdu->le == 0U) ? NFC_APDU_SHORT_MAX_LEN: apdu->le;
+const uint16_t to_send = (ctx->chain_len <= le) ? ctx->chain_len : le;
 
-if (!apdu->has_le)
+/* get position */
+uint8_t *chunk = &ctx->chain_buf[ctx->chain_offset];
+
+/* if this chunk is the last one, send OK status word */
+if ((ctx->chain_len - to_send) == 0U)
 {
-    // more chaining to come
-    return nfc_put_sw(tx_buf, NFC_SW_OK);
+    /* Last chunk */
+    reset_chain(ctx);
+    return nfc_build_response(chunk, 
+                              to_send, 
+                              NFC_SW_OK, 
+                              tx_buf, 
+                              tx_buf_len);
 }
-// last chain command, process the full request
-ctx->is_chaining = false;
-ctx->resp_len_expexted = apdu->le;
-return fido_handle_ctap(ctx, 
-                        ctx->chain_buf,
-                        ctx->chain_len, 
-                        tx_buf, 
-                        tx_buf_len);
+
+ctx->chain_offset += to_send;
+ctx->chain_len -= to_send;
+
+const uint8_t remaining = (ctx->chain_len >= NFC_APDU_SHORT_MAX_LEN) ? 
+                           0xFFU : (uint8_t)ctx->chain_len;
+const uint16_t chain_sw = (uint16_t)(NFC_SW_CHAIN | remaining);
+
+return nfc_build_response(chunk, to_send, chain_sw, tx_buf, tx_buf_len);
 \endtt
