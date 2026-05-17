@@ -324,7 +324,7 @@ static const uint8_t NDEF_FILE[] = {
 };
 \endtt
 
-\seccc[nfc-apdu-chaining] Short APDU ChainingE
+\seccc[nfc-apdu-chaining] Short APDU Chaining
 
 \nl CTAP2 short-APDU responses that exceed the NFC frame size are split across multiple APDUs using chaining (note that we are referring to APDU chaining, not ISO-DEP chaining which is done internally by RFAL), as requested by \cite[fido-ctap-documentation]. The transaction handler accumulates chained fragments into chain_buf before passing the reassembled payload to the CTAP2 processing layer. The first chunk of the response is sent when handling the CTAP request:
 

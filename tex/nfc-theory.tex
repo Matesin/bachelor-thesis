@@ -409,13 +409,15 @@ ISO-DEP serves as the transport layer for {\sbf Application Protocol Data Units 
 \caption/t General structure of a R-APDU.
 \endinsert
 
-\nl The practical structure of APDU communication can be seen in Figure \ref[img-fido-select] and its subsequent breakdown.
+\nl An example of APDU communication can be seen in Figure \ref[img-fido-select].
 
 \midinsert
 \clabel[img-fido-select]{FIDO Select Log}
 \picheight = 25mm \cinspic ../images/nfc-fido-select-cmd.png
 \caption /f Device log of processing an APDU and selecting the FIDO applet.
 \endinsert
+
+\leavevmode
 
 \begtt
 C-APDU: 00  A4  04 00 08 A0 00 00 06 47 2F 00 01
@@ -428,7 +430,7 @@ R-APDU: 46 49 44 4F 5F 32 5F 30   90 00
 
 \leavevmode
 
-\nl In this example, the C-APDU consists of the following fields: CLA~=~\code{0x00} (interindustry class byte - a standard entry point for commands), INS~=~\code{0xA4} (SELECT instruction), P1~=~\code{0x04} (selection by name) and P2~=~\code{0x00}. The field Lc~=~\code{0x08} specifies the length of the data field, which contains the 8-byte FIDO application identifier (AID) (\code{A0 00 00 06 47 2F 00 01}). After processing this message, the device responds with an R-APDU.
+\nl \In this example, we can see the byte structure of a PCD C-APDU followed by an R-APDU, sent by the PICC. The C-APDU consists of the following fields: CLA~=~\code{0x00} (interindustry class byte - a standard entry point for commands), INS~=~\code{0xA4} (SELECT instruction), P1~=~\code{0x04} (selection by name) and P2~=~\code{0x00}. The field Lc~=~\code{0x08} specifies the length of the data field, which contains the 8-byte FIDO application identifier (AID) (\code{A0 00 00 06 47 2F 00 01}). After processing this message, the device responds with an R-APDU.
 
 \nl The R-APDU contains the response data followed by the status word. The data field corresponds to the ASCII string ``FIDO\_2\_0'', while the status word~\code{0x9000} indicates successful execution of the command.
 
