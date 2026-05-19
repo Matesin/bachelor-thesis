@@ -67,7 +67,7 @@ The correctness of the CTAP implementation was first verified using an external 
 
 \nl These observations suggest that, as of April 2026, Android devices do not provide practical support for CTAP2 over NFC for external authenticators, effectively limiting NFC-based communication to U2F compatibility. Although Google introduced the full FIDO2 API for Android in 2025\urlnote{https://developers.google.com/identity/fido/android/native-apps}, this support primarily targets platform authenticators, and external authenticators connected via USB and NFC support remains vendor-specific. Since the LionKey implementation targets FIDO2 exclusively and does not implement backward compatibility with U2F, this platform constraint prevents successful interoperability with Android devices in the NFC use case.
 
-\seccc[latency-reliability] Latency and Reliability
+\secc[ctap-latency-reliability] CTAP Latency and Reliability
 
 The response time was measured for the most computationally demanding CTAP command, \code{CTAP_CMD_MAKE_CREDENTIAL}. Across 50 consecutive trials, the average response time was 42~ms in the production mode and 240~ms in the debug mode, which is comfortably within the maximum reply time suggested by the FIDO Alliance of 800~ms. The significant increase in debug mode can be attributed primarily to logging overhead and reduced optimization levels, which introduce additional processing delays. 
 
@@ -81,9 +81,7 @@ The response time was measured for the most computationally demanding CTAP comma
 
 \secc[ndef-handling] NDEF 
 
-The NDEF functionality was evaluated using a URI record to verify correct Type~4 Tag operation and interoperability with common NFC-enabled devices. The implementation was tested across multiple platforms, including iOS and Android devices, as well as an external NFC reader.
-
-\nl In all the scenarios tested, the NDEF message was successfully detected and processed, resulting in a 100\% success rate in all 50 of the tests conducted. The communication followed the standard Type~4 Tag access sequence defined by the NFC Forum, consisting of application selection, capability container access, and NDEF file retrieval.
+The NDEF functionality was evaluated using a URI record to verify correct Type~4 Tag operation and interoperability with common NFC-enabled devices. The implementation was tested across multiple platforms, including iOS and Android devices, as well as an external NFC reader. 
 
 \nl More specifically, the observed APDU flow consisted of the following steps:
 
@@ -94,22 +92,17 @@ The NDEF functionality was evaluated using a URI record to verify correct Type~4
 * SELECT command for the NDEF file 
 * READ BINARY command to retrieve the NDEF message.
 \enditems
-
-\leavevmode 
-
-\nl This sequence was executed consistently on all devices tested without deviation.
-
-\nl Response latency was measured at the APDU level in debug mode in 50 trials. The average response time was 25~ms for SELECT commands and 34~ms for READ BINARY commands. The increased latency for READ operations reflects the larger data payload and processing overhead associated with file retrieval. From the user perspective, no notable delay was observed during the interaction.
+This sequence was executed consistently on all devices tested without deviation. For the log of this communication, see \ref[img-ndef-flow].
 
 \nl We also verified the correct state machine behavior by manually sending APDUs that contain valid and invalid NDEF commands. This included checking for proper handling of file selection and data access as well as handling of invalid APDUs.
 
-\midinsert
-\clabel[img-ndef-flow]{NDEF Flow}
-\picheight = 90mm \cinspic ../images/nfc-ndef-flow.png
-\caption /f Device Log of the NDEF Communication Flow.
-\endinsert
+\secc[ndef-latency-reliability] NDEF Latency and Reliability
 
-\secc Use of CTAP on Real WebAuthn-enabled Websites
+\nl In all the scenarios tested, the NDEF message was successfully detected and processed, resulting in a 100\% success rate in all 50 of the tests conducted. The communication followed the standard Type~4 Tag access sequence defined by the NFC Forum, consisting of application selection, capability container access, and NDEF file retrieval.
+
+\nl Response latency was measured at the APDU level in debug mode in 50 trials. The average response time was 25~ms for SELECT commands and 34~ms for READ BINARY commands. The increased latency for READ operations reflects the larger data payload and processing overhead associated with file retrieval. From the user perspective, no notable delay was observed during the interaction.
+
+\sec Use of CTAP on Real WebAuthn-enabled Websites
 
 The implementation was further evaluated in real-world scenarios by testing it on WebAuthn-enabled websites. We managed to perform successful authentication on multiple websites, including the WebAuthn demo (Figure \ref[img-wa-flow-2]), Google, Amazon, or GitHub. 
 

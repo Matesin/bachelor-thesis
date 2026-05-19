@@ -29,10 +29,7 @@ In NFC communication, two roles are distinguished according to which device init
 * {\sbf Target}
 \nl The device that responds to the initiator. Depending on the communication mode, it can passively modulate the initiator’s field or actively generate its own signal. Typical examples include contactless smart cards, NFC tags, or peer devices. 
 \enditems
-
-\leavevmode
-
-\nl It is important to distinguish these roles from the physical ability to generate an electromagnetic field. In passive communication mode, the initiator generates the RF field. In active communication mode, both devices are capable of generating their own RF field during their respective transmission phases.
+It is important to distinguish these roles from the physical ability to generate an electromagnetic field. In passive communication mode, the initiator generates the RF field. In active communication mode, both devices are capable of generating their own RF field during their respective transmission phases.
 
 \nl NFC defines two communication modes based on how the electromagnetic field is generated and how the devices are powered: {\sbf active mode} and {\sbf passive mode}.
 
@@ -42,14 +39,8 @@ In NFC communication, two roles are distinguished according to which device init
 \nl In active mode, both the initiator and the target are equipped with their own power sources and are capable of generating an RF field. Communication is performed through alternating transmission, where each device generates its own carrier field during its transmission phase. This mode is used primarily in peer-to-peer communication scenarios.
 
 * {\sbf Passive Mode}
-\nl In passive mode, only the initiator generates the RF field. The target does not have its own power source and utilizes energy harvesting. Data transmission from the target is achieved through load modulation of the existing carrier field. This mode is characteristic of typical NFC-A and NFC-B interactions, such as communication with contactless smart cards and NFC tags.
+\nl In passive mode, only the initiator generates the RF field. The target may not have its own power source and may utilize energy harvesting. Data transmission from the target is achieved through load modulation of the existing carrier field. This mode is characteristic of typical NFC-A and NFC-B interactions, such as communication with contactless smart cards and NFC tags.
 \enditems
-
-\midinsert
-\clabel[img-nfc-stack]{NFC Protocol Stack}
-\picheight = 80mm \cinspic ../images/NFC_Protocol_Stack.png
-\caption /f NFC Protocol Stack~\cite[nfc-protocol-stack]
-\endinsert
 
 \sec [nfc-operating-modes] Operating Modes
 
@@ -67,10 +58,7 @@ The NFC Forum defines {\sbf three} primary {\sbf operating modes} that determine
 \nl The peer-to-peer mode enables half-duplex communication between two NFC-enabled devices, where both devices can alternately assume the roles of initiator and target. Communication in this mode is defined by ISO/IEC 18092 and the NFC Forum Logical Link Control Protocol (LLCP). It is primarily used for data exchange scenarios such as device pairing or file transfer, although its practical use has declined in favor of higher-throughput wireless technologies.
 
 \enditems
-
-\leavevmode
-
-\nl These operating modes build upon the previously described concepts of initiator and target roles, as well as active and passive communication modes. Their combination defines the functional behavior of NFC devices in real-world applications. 
+These operating modes build upon the previously described concepts of initiator and target roles, as well as active and passive communication modes. Their combination defines the functional behavior of NFC devices in real-world applications. 
 
 \sec[nfc-rf-technologies] NFC RF Technologies
 \secc[nfc-a] NFC-A
@@ -118,6 +106,12 @@ on direction and data rate:
 
 \nl However, due to its regional focus and protocol differences, NFC-F is not universally supported by all NFC readers. Consequently, its applicability in general-purpose NFC implementations is limited and it is mentioned in this overview purely for completeness.
 
+\midinsert
+\clabel[img-nfc-stack]{NFC Protocol Stack}
+\picheight = 80mm \cinspic ../images/NFC_Protocol_Stack.png
+\caption /f NFC Protocol Stack~\cite[nfc-protocol-stack]
+\endinsert
+
 \sec[nfc-a-state-machine] NFC-A State Machine
 
 NFC-A anticollision and activation sequence has a defined state machine behavior, respecting~\cite[iso14443-3]. This state machine must be respected for the correct initialization of the communication and protocol flow, as illustrated in Figure \ref[img-nfc-init-flow]. 
@@ -151,7 +145,7 @@ The NFC-A state machine has the following States:
 \nl The PICC has responded to REQA or WUPA. The anticollision loop begins here: the PCD issues ANTICOLLISION commands to isolate the card's UID, then a SELECT command to uniquely address it. A successful SELECT transitions the card to ACTIVE. A failed SELECT or collision returns the card to IDLE.
 
 * {\sbf READY$^*$}
-\nl Functionally identical to READY, but entered exclusively from HALT via WUPA. The distinction ensures that the PCD can track whether a card was freshly powered or previously halted. A successful SELECT transitions the card to ACTIVE$^*$.
+\nl Functionally identical to READY, but entered exclusively from HALT via WUPA. A successful SELECT transitions the card to ACTIVE$^*$.
 
 * {\sbf ACTIVE}
 \nl The PICC has been selected by its full UID and is ready to communicate. If the card supports ISO-DEP~\ref[nfc-iso-dep], it awaits a RATS command to enter the PROTOCOL state. Otherwise, it continues with its proprietary protocol. An HLTA command transitions the card to HALT.
@@ -211,14 +205,11 @@ NFC-A PICCs have UIDs of three possible lengths, each requiring a different numb
 * {\sbf Double (7 bytes)} - resolved across two cascade levels (CL1, CL2)
 * {\sbf Triple (10 bytes)} - resolved across three cascade levels (CL1, CL2, CL3)
 \enditems
-
-\leavevmode 
-
-\nl Each cascade level transmits 4 bytes of UID data at a time. When more levels remain, the first byte of the current level is set to the {\sbf Cascade Tag} (CT, value \code{0x88}), signaling to the PCD that the UID continues in a subsequent cascade level.
+Each cascade level transmits 4 bytes of UID data at a time. When more levels remain, the first byte of the current level is set to the {\sbf Cascade Tag} (CT, value \code{0x88}), signaling to the PCD that the UID continues in a subsequent cascade level.
 
 \seccc[nfc-a-loop] Anticollision Loop
 
-The following sequence repeats for each required cascade level:
+The following sequence repeats for each required cascade level. Note that bits are indexed from 1.
 
 \begitems
 
@@ -294,7 +285,7 @@ Before data exchange can begin, ISO-DEP requires an activation phase in which th
 
 \leavevmode
 
-\nl The ATS response consists of a total length value (TL), format byte (T0), optional interface bytes (TA, TB, TC) and optional Historical Bytes (up to 15 bytes). These fields define key communication parameters, including timing constraints and frame sizes. This is illustrated in Table \ref[table-ats].
+\nl The ATS response consists of a total length value (TL), format byte (T0), optional interface bytes (TA, TB, TC) and optional Historical Bytes (up to 15 bytes). These fields define key communication parameters, including timing constraints and frame sizes. All blocks are terminated by a two-byte CRC. This is illustrated in Table \ref[table-ats].
 
 \midinsert \clabel[table-ats]{ATS message structure}
 \ctable{c|c|c|c|c|c|c|c|c}{
@@ -320,7 +311,7 @@ FWT = {256 \times 16 \over f_c} \times 2^{FWI}
 $$
 
 * {\sbf Frame Guard Time (FGT)} 
-\nl Derived from the Guard Time Integer (GTI) in TB(1), FGT specifies the {\sbf minimum delay the target must observe between receiving a frame and sending its response}. This prevents receiver saturation and ensures reliable synchronization.
+\nl Derived from the Guard Time Integer (GTI) in TB(1), FGT specifies the minimal delay that must elapse before next transaction. This prevents receiver saturation and ensures reliable synchronization.
 
 * {\sbf Device Identifier (CID)}
 \nl When there are multiple cards present in the field, the initiator can use CID (0–14), specified in TC(1), to address a specific card. If not used, the CID is typically set to 0 or completely omitted.
@@ -334,32 +325,46 @@ $$
 
 \seccc[nfc-iso-dep-data] Data Exchange Blocks
 
-Communication in {\sbf ISO-DEP} is organized into protocol data units (blocks), which are exchanged between the initiator and the target. Three types of blocks are defined: {\sbf I-Blocks} (Information blocks) to carry application data, {\sbf R-Blocks} for acknowledgments and retransmission requests, and {\sbf S-Blocks} (Supervisory blocks) used for control messages. Each block begins with a one-byte {\sbf PCB} (Protocol Control Byte), which identifies the block type and carries protocol control information such as block numbering, acknowledgment status, chaining indication, or supervisory commands. Blocks can also contain the optional one-byte{\sbf CID} and {\sbf NAD} fields. I-Blocks and S-Blocks may also contain an {\sbf INF} field for application or supervisory data, respectively. The maximum size of the INF field is determined by ({\sbf FSC/FSD}). The structure of the blocks can be seen in Tables \ref[table-i-block], \ref[table-r-block] and \ref[table-s-block].
+Communication in {\sbf ISO-DEP} is organized into protocol data units called {\sbf blocks}, which are exchanged between the initiator and the target. Three block types are defined:
 
-\midinsert \clabel[table-i-block]{ISO-DEP I-block structure}
-\ctable{c|c|c|c|c|c}{
-\hfil PCB & CID & NAD & INF & CRC1 & CRC2 \crl \tskip5pt
-0x00 & optional & optional & data (max. FSC bytes) & & \crl
+\begitems
+* {\sbf I-Blocks} (Information blocks)
+\nl Used to transport application data, including APDUs.
+
+* {\sbf R-Blocks} (Receive Ready blocks)
+\nl Used for acknowledgments and retransmission control.
+
+* {\sbf S-Blocks} (Supervisory blocks)
+\nl Used for protocol management and control operations, such as waiting time extension or deselection.
+\enditems
+Each block begins with a mandatory one-byte {\sbf PCB (Protocol Control Byte)}, which identifies the block type and encodes protocol control information. Depending on the block type, the PCB may contain information such as block numbering, chaining indication, acknowledgment status, or supervisory commands.
+
+\nl Depending on the negotiated protocol configuration, the blocks can also contain optional {\sbf CID} and {\sbf NAD}. I-Blocks and some S-Blocks may also include an {\sbf INF} field that contains application or supervisory data. All blocks are terminated by a two-byte CRC.
+
+\nl The general structure of ISO-DEP blocks is illustrated in Tables~\ref[table-i-block], \ref[table-r-block], and \ref[table-s-block].
+
+\midinsert \clabel[table-i-block]{General ISO-DEP I-Block structure}
+\ctable{c|c|c|c|c}{
+\hfil PCB & CID/NAD & INF & CRC1 & CRC2 \crl \tskip5pt
+mandatory & optional & application data & & \crl
 }
-\caption/t  ISO-DEP I-block structure.
+\caption/t General structure of an ISO-DEP I-Block.
 \endinsert
 
-
-\midinsert \clabel[table-r-block]{ISO-DEP R-block structure}
-\ctable{c|c|c|c|c}{
-\hfil PCB & CID & ACK / NACK & CRC1 & CRC2 \crl \tskip5pt
-0x80 & optional &  status & & \crl
+\midinsert \clabel[table-r-block]{General ISO-DEP R-Block structure}
+\ctable{c|c|c|c}{
+\hfil PCB & CID/NAD & CRC1 & CRC2 \crl \tskip5pt
+mandatory & optional & & \crl
 }
-\caption/t ISO-DEP R-block structure.
+\caption/t General structure of an ISO-DEP R-Block.
 \endinsert
 
-
-\midinsert \clabel[table-s-block]{ISO-DEP S-block structure}
+\midinsert \clabel[table-s-block]{General ISO-DEP S-Block structure}
 \ctable{c|c|c|c|c}{
-\hfil PCB & CID & INF & CRC1 & CRC2 \crl \tskip5pt
-0xC0 & optional & data & & \crl
+\hfil PCB & CID/NAD & INF & CRC1 & CRC2 \crl \tskip5pt
+mandatory & optional & optional supervisory data & & \crl
 }
-\caption/t ISO-DEP S-block structure.
+\caption/t General structure of an ISO-DEP S-Block.
 \endinsert
 
 \seccc[nfc-apdu] APDU
@@ -372,7 +377,9 @@ ISO-DEP serves as the transport layer for {\sbf Application Protocol Data Units 
 
 \nl APDUs can be encoded in short or extended format. In the short format, the length fields are limited to one byte, allowing payloads of up to 255 bytes. The extended format uses two-byte length fields, enabling payloads of up to 65,535 bytes.
 
-\nl In the short format, the C-APDU consists of the mentioned 4-byte header followed by the optional fields Lc, Data (0–255 bytes) and Le, where both Lc and Le are encoded using a single byte. 
+\nl In the short format, the C-APDU (see Table~\ref[table-apdu-short-layout]) consists of the mentioned 4-byte header followed by the optional fields Lc, Data (0–255 bytes) and Le, where both Lc and Le are encoded using a single byte. 
+
+\nl In the extended format (see Table~\ref[table-apdu-extended-layout], the presence of the leading \code{0x00} byte indicates extended length encoding, followed by two-byte fields for Lc and Le. The exact position of Le depends on the APDU case.
 
 \midinsert
 \clabel[table-apdu-short-layout]{Short C-APDU byte layout}
@@ -383,15 +390,11 @@ ISO-DEP serves as the transport layer for {\sbf Application Protocol Data Units 
 \caption/t Byte-level structure of short C-APDUs.
 \endinsert
 
-\leavevmode 
-
-\nl In the extended format, the presence of the leading \code{0x00} byte indicates extended length encoding, followed by two-byte length fields for Lc and Le. The exact position of Le depends on the APDU case.
-
 \midinsert
 \clabel[table-apdu-extended-layout]{Extended C-APDU byte layout}
 \ctable{c|c|c|c|c|c|c|c}{
 \hfil CLA & INS & P1 & P2 & 00 & Lc(Hi) & Lc(Lo) & Data/Le \crl \tskip5pt
-1B & 1B & 1B & 1B & extended & \multispan2 length \vrule & variable \crl
+1B & 1B & 1B & 1B & ext. marker & \multispan2 length \vrule & variable \crl
 }
 \caption/t Byte-level structure of extended C-APDUs.
 \endinsert
@@ -409,9 +412,9 @@ ISO-DEP serves as the transport layer for {\sbf Application Protocol Data Units 
 \caption/t General structure of a R-APDU.
 \endinsert
 
-\leavevmode
+\seccc[apdu-communication-example] APDU Communication Example
 
-\nl An example of APDU communication can be seen in Figure \ref[img-fido-select].
+An example of APDU communication can be seen in Figure \ref[img-fido-select].
 
 \midinsert
 \clabel[img-fido-select]{FIDO Select Log}
@@ -444,13 +447,36 @@ Within ISO-DEP, APDUs are transported using I-Blocks. Since the maximum size of 
 
 \nl The two chaining mechanisms operate at different layers: ISO-DEP chaining ensures reliable transmission of a single APDU over multiple frames, while application-level response handling enables large response data to be retrieved through multiple APDU commands, especially when short APDU length fields are used.
 
+\seccc[nfc-ndef] NDEFA
+
+The {\sbf NFC Data Exchange Format (NDEF)} is a standardized binary message format used to encode and exchange application-level data between NFC devices and tags. NDEF operates above the transport and protocol layers and is independent of the underlying RF technology.
+
+\nl An {\sbf NDEF Message} consists of one or more {\sbf NDEF Records}, each carrying a typed payload. The record type is identified by the {\sbf Type Name Format (TNF)} field, which determines how the payload should be interpreted. Common payload types include plain text, URIs, MIME-typed data (i.e. images), and application-defined external types identified using a domain-name-based naming convention. NDEF is widely used in the reader/writer mode and is broadly supported across NFC-capable devices and mobile operating systems.
+
+\nl In NFC tag implementations based on ISO-DEP, NDEF data is typically accessed by APDU communication over ISO-DEP~\cite[iso14443-4]. The reader first selects the NDEF application using its application identifier (AID), then accesses the {\sbf Capability Container (CC)} file to determine the tag's capabilities and supported data sizes. Finally, the reader selects the NDEF data file itself and performs read or write operations.
+
+\nl The relevant APDU commands are:
+
+\begitems
+* {\sbf SELECT} (by AID or file identifier)
+\nl Selects the NDEF application or a specific file within it.
+
+* {\sbf READ BINARY}
+\nl Reads the contents of the currently selected file, typically used to retrieve the NDEF message.
+
+* {\sbf UPDATE BINARY}
+\nl Writes data into the currently selected file, allowing the stored NDEF message to be modified if write access is permitted.
+\enditems
+Due to its widespread adoption as a standard mechanism for application-level NFC data exchange, NDEF can be considered a fundamental component of practical NFC interoperability. Therefore, in order to provide a more complete implementation of basic NFC functionality as given by the guidelines, we also made NDEF support a part of the implementation scope alongside CTAP communication.
+
 \secc[nfc-nfc-dep] NFC-DEP
 
 The {\sbf NFC-DEP} (NFC Data Exchange Protocol), defined in~\cite[iso18092], is designed for peer-to-peer communication between two {\sbf active} NFC devices. Unlike ISO-DEP, which follows a reader–card model, NFC-DEP enables symmetric communication, allowing both devices to alternate between initiator and target roles.
 
-\nl In contrast to ISO-DEP, {\sbf NFC-DEP does not utilize APDUs} and does not follow a strict command–response model. Instead, communication is based on {\sbf message-oriented data exchange}, making it more suitable for peer-to-peer scenarios rather than card emulation.
+\nl In contrast to ISO-DEP, NFC-DEP {\sbf is not based on the APDU command–response model} used by ISO-DEP. Instead, communication is based on {\sbf message-oriented data exchange}, making it more suitable for peer-to-peer scenarios rather than card emulation.
 
 \nl Since CTAP over NFC relies on APDU communication over ISO-DEP, NFC-DEP is outside the scope of this implementation.
+
 
 
 
