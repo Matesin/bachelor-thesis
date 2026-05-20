@@ -28,8 +28,6 @@ WebAuthn authentication                & iPhone + Browser         & Pass & -- \c
 }
 \caption/t Overview of evaluation tests, platforms, and results.
 \endinsert
-\caption/t Overview of evaluation tests, platforms, and results.
-\endinsert
 
 \midinsert
 \clabel[img-nfc-testing-setup]{Evaluation Setup}
@@ -108,7 +106,7 @@ The NDEF functionality was evaluated using a URI record to verify correct Type~4
 
 \secc[ndef-latency-reliability] NDEF Latency and Reliability
 
-\nl In all the scenarios tested, the NDEF message was successfully detected and processed, resulting in a 100\% success rate in all 50 of the tests conducted. The communication followed the standard Type~4 Tag access sequence defined by the NFC Forum, consisting of application selection, capability container access, and NDEF file retrieval.
+In all the scenarios tested, the NDEF message was successfully detected and processed, resulting in a 100\% success rate in all 50 of the tests conducted. The communication followed the standard Type~4 Tag access sequence defined by the NFC Forum, consisting of application selection, capability container access, and NDEF file retrieval.
 
 \nl Response latency was measured at the APDU level in debug mode in 50 trials. The average response time was 25~ms for SELECT commands and 34~ms for READ BINARY commands. The increased latency for READ operations reflects the larger data payload and processing overhead associated with file retrieval. From the user perspective, no notable delay was observed during the interaction.
 
@@ -121,3 +119,4 @@ The implementation was further evaluated in real-world scenarios by testing it o
 \picheight = 110mm \cinspic ../images/wa-flow-merged.png
 \caption /f  WebAuthn LionKey passkey registration flow via NFC on the iPhone on the WebAuthn Demo.
 \endinsert
+

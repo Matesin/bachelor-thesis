@@ -10,7 +10,7 @@ NFC is a short-range wireless communication technology derived from radio-freque
 
 \sec[nfc-device-types] Device Types
 
-NFC devices fall into three categories: {\sbf active} devices (proximity coupling devices or PCDs), {\sbf passive} devices (proximity integrated circuit cards or PICCs), and {\sbf hybrid} devices (proximity extended devices or PXDs).
+NFC devices fall into three categories: {\sbf active} devices (proximity coupling devices or PCDs), {\sbf passive} devices (proximity integrated circuit cards or {\sbf PICCs}), and {\sbf hybrid} devices (proximity extended devices or PXDs).
 
 \nl {\sbf Active devices}, or proximity coupling devices ({\sbf PCDs}), are equipped with their own power source and generate an electromagnetic field, enabling them to initiate and control NFC communication.
 
@@ -52,10 +52,10 @@ The NFC Forum defines {\sbf three} primary {\sbf operating modes} that determine
 \nl In the reader/writer mode, the PCD operates as an initiator and interacts with passive PICCs. This mode is commonly used for applications such as reading NDEF records, accessing contactless cards, or configuring embedded devices. 
 
 * {\sbf Card Emulation Mode}
-\nl In CE mode, the PICC behaves as a contactless smart card and acts as a target. It responds to commands issued by the PCD, typically using the ISO-DEP protocol. This mode is widely used in applications such as contactless payments, access control, and mobile wallets. Its main advantage is the possibility of implementing a more complex state machine while retaining the ability to utilize energy harvesting. This mode has two variants of implementation. It can either be implemented on a general-purpose MCU or using a dedicated secure element (SE) hardware, depending on the use case. Commercial NFC-capable security keys commonly rely on secure-element-based designs, as indicated, for example, by the Yubikey tech manual~\cite[yubikey-manual] or by the Google Titan documentation~\cite[titan-key-documentation].
+\nl In CE mode, the PICC behaves as a contactless smart card and acts as a target. It responds to commands issued by the PCD, typically using the ISO-DEP protocol. This mode is widely used in applications such as contactless payments, access control, and mobile wallets. Its main advantage is the possibility of implementing a more complex state machine while retaining the ability to utilize energy harvesting. This mode has two variants of implementation. It can either be implemented on a general-purpose MCU or using a dedicated {\sbf secure element (SE)} hardware, depending on the use case. Commercial NFC-capable security keys commonly rely on secure-element-based designs, as indicated, for example, by the Yubikey tech manual~\cite[yubikey-manual] or by the Google Titan documentation~\cite[titan-key-documentation].
 
 * {\sbf Peer-to-Peer Mode} 
-\nl The peer-to-peer mode enables half-duplex communication between two NFC-enabled devices, where both devices can alternately assume the roles of initiator and target. Communication in this mode is defined by \cite{iso18092} and the NFC Forum Logical Link Control Protocol (LLCP). It is primarily used for data exchange scenarios such as device pairing or file transfer, although its practical use has declined in favor of higher-throughput wireless technologies.
+\nl The peer-to-peer mode enables half-duplex communication between two NFC-enabled devices, where both devices can alternately assume the roles of initiator and target. Communication in this mode is defined by \cite[iso18092] and the NFC Forum Logical Link Control Protocol (LLCP). It is primarily used for data exchange scenarios such as device pairing or file transfer, although its practical use has declined in favor of higher-throughput wireless technologies.
 
 \enditems
 These operating modes build upon the previously described concepts of initiator and target roles, as well as active and passive communication modes. Their combination defines the functional behavior of NFC devices in real-world applications. 
@@ -93,10 +93,7 @@ on direction and data rate:
 * {\sbf PCD to PICC}: 10\% ASK modulation. The carrier amplitude drops to approximately 90\% of the amplitude to represent a logical 0, and remains at full amplitude for logical 1. The low modulation index keeps the carrier stable, reducing RF noise pickup.
 * {\sbf PICC to PCD}: Binary Phase Shift Keying (BPSK) modulation of a subcarrier (fc/16), which allows the card to respond without being overwhelmed by the reader's transmitted signal. The initial phase of the subcarrier represents logical 1 and a 180 degree shift represents a logical 0.
 \enditems
-
-\leavevmode 
-
-\nl The lower modulation index results in {\sbf improved robustness} against electromagnetic interference. This means that NFC-B is more suitable for applications requiring high reliability in noisy environments.
+The lower modulation index results in {\sbf improved robustness} against electromagnetic interference. This means that NFC-B is more suitable for applications requiring high reliability in noisy environments.
 
 \secc[nfc-f] NFC-F
 
@@ -389,7 +386,7 @@ ISO-DEP serves as the transport layer for {\sbf Application Protocol Data Units 
 
 \nl In the short format, the C-APDU (see Table~\ref[table-apdu-short-layout]) consists of the mentioned 4-byte header followed by the optional fields Lc, Data (0–255 bytes) and Le, where both Lc and Le are encoded using a single byte. 
 
-\nl In the extended format (see Table~\ref[table-apdu-extended-layout], the presence of the leading \code{0x00} byte indicates extended length encoding, followed by two-byte fields for Lc and Le. The exact position of Le depends on the APDU case.
+\nl In the extended format (see Table~\ref[table-apdu-extended-layout]), the presence of the leading \code{0x00} byte indicates extended length encoding, followed by two-byte fields for Lc and Le. The exact position of Le depends on the APDU case.
 
 \midinsert
 \clabel[table-apdu-short-layout]{Short C-APDU byte layout}
