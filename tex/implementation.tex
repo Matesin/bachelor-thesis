@@ -4,15 +4,15 @@ In this chapter, the {\sbf technologies used} in the implementation of the NFC t
 
 \midinsert
 \clabel[img-implementation-diagram]{Implementation Scope Diagram}
-\picheight = 95mm \cinspic ../images/lionkey-implementation-diagram.png
-\caption /f Scope of the Implementation (circled in red).
+\picheight = 100mm \cinspic ../images/lionkey-implementation-diagram.png
+\caption /f Diagram of the LionKey Stack with the Implementation Scope Circled in Red
 \endinsert
 
 \sec[nfc-specs] NFC technologies used
 
 After evaluating the available NFC operating modes and specifications, it becomes evident that the Card Emulation Mode is the only mode compatible with the intended use case. The objective is for the device to behave as a passive entity, analogous to a contactless smart card, rather than as an active initiator.
 
-\nl In the ideal case, card emulation based on Secure Element (SE) would be used. However, this is not feasible with respect to the existing LionKey hardware architecture. This approach requires the presence of a dedicated SE capable of isolated execution and secure key storage, which is not available in the current design. Consequently, the implementation must be based on host-based card emulation, where all protocol handling is performed by the microcontroller (MCU).
+\nl In the ideal case, card emulation based on Secure Element (SE) would be used. However, this is not feasible with respect to the existing LionKey hardware architecture. This approach requires the a of a dedicated SE capable of isolated execution and secure key storage, which is not available in the current design. Consequently, the implementation must be based on host-based card emulation, where all protocol handling is performed by the microcontroller (MCU).
 
 \nl The required functionality is achieved most appropriately through the emulation of a Type 4 NFC Forum Tag. In contrast to simpler tag types, Type 4 Tag operation is based on the ISO-DEP protocol and supports structured command–response communication via APDUs. This enables the implementation of a state machine and allows for computation within the tag (see \ref[img-nfc-stack]). NFC-A was selected over NFC-B for the implementation due to its greater support across mobile operating systems.
 
@@ -20,7 +20,7 @@ After evaluating the available NFC operating modes and specifications, it become
 
 The hardware chosen for the implementation is the {\sbf STEVAL-D25R3916B}, a daughter board of the STEVAL-25R3916B platform manufactured by STMicroelectronics~\cite[STEVAL-25R3916B-brief]. This kit is an evaluation board for the 25R3916B NFC chip, which turned out to be the best option for the purpose of this thesis. 
 
-\nl The 25R3916B chip belongs to the STMicroelectronics universal NFC device family. It supports all main NFC operating modes, including reader/writer mode, peer-to-peer communication, and card emulation; however, it does not provide support for secure element–based card emulation.
+\nl The 25R3916B chip belongs to the STMicroelectronics universal NFC device family. It supports all main NFC operating modes, including reader/writer mode, peer-to-peer communication, and card emulation; however, it does not provide support for SE–based card emulation.
 
 \nl Unlike dedicated NFC tag ICs with fixed memory structures, the chip operates as a low-level RF frontend, exposing frame-level control to the application layer. Thanks to this, it enables software-driven card emulation, allowing the host microcontroller to implement the protocol logic.
 
@@ -64,7 +64,7 @@ This section describes the communication interface between the MCU and the NFC f
 \caption /f KiCad scheme showing how the STEVAL-D25R3916B board is connected to the Nucleo-H533 MCU.
 \endinsert
 
-\secc[nfc-spi] SPI Interface
+\secc[nfc-spi] SPI
 
 The communication between the MCU and the NFC frontend is implemented using SPI. Compared to I2C, SPI provides higher data throughput, lower communication latency, and, most importantly, fully deterministic timing due to its synchronous nature and absence of bus arbitration. These properties are critical to ensure protocol compliance. Any excessive delay in data transfer between the front end and the MCU may lead to FWT violations, thus prematurely terminating the NFC session.
 
@@ -84,7 +84,10 @@ In terms of code, the software implementation follows the practices set in the o
 
 \nl The NFC functionality is implemented using a set of state machines integrated into the existing application architecture, with the NFC worker function being run periodically from the main application loop.
 
-\nl The primary state machine models the operational state of the NFC frontend and distinguishes between the following states (refer to Figure \ref[img-impl-state-machine]):
+\secc[nfc-primary-sm] NFC State Machine
+
+The primary state machine models the operational state of the NFC frontend and distinguishes between the following states (refer to Figure \ref[img-impl-state-machine]):
+
 \begitems
 * {\sbf Uninitialized (NOTINIT)}
 \nl Initial state of the device, waiting for initialization. Transitions to the DISCOVERY state after initialization.
@@ -102,7 +105,7 @@ In terms of code, the software implementation follows the practices set in the o
 \caption /f PlantUML diagram of the implemented state machine.
 \endinsert
 
-\secc[nfc-transaction-handling] CE State Machine
+\secc[nfc-secondary-sm] CE State Machine
 
 To ensure non-blocking operation and enable concurrent execution of other critical components in parallel with NFC, the card emulation task is implemented as a separate Card Emulation state machine (within NFC_CE_ACTIVE in \ref[img-impl-state-machine]). This secondary state machine governs the progression of individual NFC transactions, including reception and transmission phases, and consists of the following states: 
 
@@ -166,8 +169,7 @@ static bool nfc_poll_transmission_status(transmission_line_t line)
     return true;
 }
 \endtt
-
-\nl Upon receiving an APDU from the PCD (PROCESS_RX), the message is parsed and processed according to its semantics. The parser supports all defined APDU formats and handles edge cases (i.e., incorrect length or unsupported CLA) according to \cite[iso7816-4]. 
+Upon receiving an APDU from the PCD (PROCESS_RX), the message is parsed and processed according to its semantics. The parser supports all defined APDU formats and handles edge cases (i.e., incorrect length or unsupported CLA) according to \cite[iso7816-4]. 
 
 \begtt
 static bool nfc_handle_process_rx(void)

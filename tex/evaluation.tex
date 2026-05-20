@@ -11,6 +11,27 @@ The evaluation process was structured in two stages, corresponding to different 
 \nl The mobile devices used for the testing were multiple iPhone devices ranging from iPhone 11 to iPhone 15 with iOS 18 to iOS 26, and a Samsung Galaxy S22+, representing the dominant mobile platforms, iOS and Android. Regarding personal computers, Apple does not allow the use of NFC security keys on macOS\urlnote{https://support.apple.com/en-us/102637}. Consequently, a computer was used only for low-level functional testing through an external NFC reader, and not for real-world passkey authentication workflows.
 
 \midinsert
+\clabel[table-evaluation-summary]{Evaluation Summary}
+{\typosize[9/11]
+\ctable{l|l|c|p{3cm}}{
+\hfil {\sbf Test} & {\sbf Platform} & {\sbf Result} & \hfil{\sbf Notes} \crl \tskip5pt
+NFC-A activation & ACR122U + libnfc        & Pass & -- \crl \tskip5pt
+FIDO conformance tests            & ACR1552U + FIDO Tools                & Pass & Complete test suite \crl \tskip5pt
+CTAP2 over NFC                         & iPhone 11--15 (iOS 18--26) & Pass & Full CTAP2 interoperability \crl \tskip5pt
+CTAP2 over NFC                         & Samsung Galaxy S22+      & Fail & Falls back to U2F \crl \tskip5pt
+NDEF URI read                          & iPhone 11--15 (iOS 18--26) & Pass & -- \crl \tskip5pt
+NDEF URI read                          & Samsung Galaxy S22+      & Pass & -- \crl \tskip5pt
+NDEF URI read                          & ACR122U + NFC Tools      & Pass & Manual APDU verification \crl \tskip5pt
+WebAuthn registration                  & iPhone + Browser         & Pass & -- \crl \tskip5pt
+WebAuthn authentication                & iPhone + Browser         & Pass & -- \crl
+}
+}
+\caption/t Overview of evaluation tests, platforms, and results.
+\endinsert
+\caption/t Overview of evaluation tests, platforms, and results.
+\endinsert
+
+\midinsert
 \clabel[img-nfc-testing-setup]{Evaluation Setup}
 \picheight = 50mm \cinspic ../images/testing-setup.jpeg
 \caption /f Evaluation Setup used for testing with computers.
@@ -49,7 +70,7 @@ Successful retrieval of these parameters demonstrates that the device correctly 
 
 \secc[fido-handling] CTAP
 
-The correctness of the CTAP implementation was first verified using an external NFC reader through the FIDO Alliance Conformance Testing Tools application, which is available from the FIDO Alliance upon request. The tests include extended APDU CTAP requests, short APDU chaining (both in and out), and protocol compliance in edge case handling. The implementation passed all NFC-related test cases successfully. Since the original implementation had already been validated as FIDO-compliant, no major interoperability issues were expected with the NFC-enabled variant. This assumption was confirmed by executing the complete test suite previously used for the original implementation, with NFC used as the transport layer.
+The correctness of the CTAP implementation was first verified using an external NFC reader through the FIDO Alliance Conformance Testing Tools application, which is available from the FIDO Alliance upon request. The tests include extended APDU CTAP requests, short APDU chaining (both in and out), and malformed APDU handling. The implementation passed all NFC-related test cases successfully. Since the original implementation had already been validated as FIDO-compliant, no major interoperability issues were expected with the NFC-enabled variant. This assumption was confirmed by executing the complete test suite previously used for the original implementation, with NFC used as the transport layer.
 
 \midinsert
 \clabel[img-fido-ctap-getinfo]{CTAP_GETINFO Log}
@@ -79,22 +100,11 @@ The response time was measured for the most computationally demanding CTAP comma
 
 \nl These observations suggest limited robustness in session termination and error handling within the client-side NFC stack. However, it cannot be conclusively determined to what extent this behavior is caused by the browser, the underlying operating system, or the implementation of the authenticator.
 
-\secc[ndef-handling] NDEF 
+\secc[ndef-handling] NDEF and APDU handling
 
-The NDEF functionality was evaluated using a URI record to verify correct Type~4 Tag operation and interoperability with common NFC-enabled devices. The implementation was tested across multiple platforms, including iOS and Android devices, as well as an external NFC reader. 
+The NDEF functionality was evaluated using a URI record to verify correct Type~4 Tag operation and interoperability with common NFC-enabled devices. The implementation was tested across multiple platforms, including iOS and Android devices, as well as an external NFC reader. NDEF communication flow is further explained in \ref[img-ndef-flow].
 
-\nl More specifically, the observed APDU flow consisted of the following steps:
-
-\begitems \style n
-* SELECT command for the NDEF application identifier
-* SELECT command for the Capability Container (CC) file
-* READ BINARY command to retrieve the CC file 
-* SELECT command for the NDEF file 
-* READ BINARY command to retrieve the NDEF message.
-\enditems
-This sequence was executed consistently on all devices tested without deviation. For the log of this communication, see \ref[img-ndef-flow].
-
-\nl We also verified the correct state machine behavior by manually sending APDUs that contain valid and invalid NDEF commands. This included checking for proper handling of file selection and data access as well as handling of invalid APDUs.
+\nl We also verified the correct state machine behavior by manually sending APDUs that contained valid and invalid NDEF commands. This included checking for proper handling of file selection and data access as well as handling of invalid APDUs (i.e. APDUs not strictly following the structure referenced in~\ref[nfc-apdu].
 
 \secc[ndef-latency-reliability] NDEF Latency and Reliability
 
@@ -104,10 +114,10 @@ This sequence was executed consistently on all devices tested without deviation.
 
 \sec Use of CTAP on Real WebAuthn-enabled Websites
 
-The implementation was further evaluated in real-world scenarios by testing it on WebAuthn-enabled websites. We managed to perform successful authentication on multiple websites, including the WebAuthn demo (Figure \ref[img-wa-flow-2]), Google, Amazon, or GitHub. 
+The implementation was further evaluated in real-world scenarios by testing it on WebAuthn-enabled websites. We managed to perform successful authentication on multiple websites, including the WebAuthn demo (see \ref[img-wa-flow-2]), Google, Amazon, or GitHub. 
 
 \midinsert
 \clabel[img-wa-flow-2]{Webauthn Authentication Flow }
-\picheight = 90mm \cinspic ../images/wa-flow-merged.png
+\picheight = 110mm \cinspic ../images/wa-flow-merged.png
 \caption /f  WebAuthn LionKey passkey registration flow via NFC on the iPhone on the WebAuthn Demo.
 \endinsert

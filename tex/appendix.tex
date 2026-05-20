@@ -3,6 +3,16 @@
 \usebib/c (simple) references
 
 \app Referenced Figures
+\sec[app-ndef-comm-flow] NDEF Communication Flow
+The observed NDEF APDU flow consisted of the following steps:
+
+\begitems \style n
+* SELECT command for the NDEF application identifier
+* SELECT command for the Capability Container (CC) file
+* READ BINARY command to retrieve the CC file 
+* SELECT command for the NDEF file 
+* READ BINARY command to retrieve the NDEF message.
+\enditems
 
 \midinsert
 \clabel[img-ndef-flow]{NDEF Flow}
