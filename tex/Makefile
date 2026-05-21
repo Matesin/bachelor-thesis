@@ -11,7 +11,7 @@ open: pdf
 .PHONY: copy
 copy: pdf
 	@echo "copying PDF build to the final destination ..."
-	cp main.pdf ../thesis_draft.pdf
+	cp main.pdf ../LionKey_NFC_Support.pdf
 
 .PHONY: clean
 clean:
