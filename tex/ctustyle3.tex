@@ -32,6 +32,9 @@
 \_newtoks\thanks
 \_newtoks\declaration
 \_newtoks\specification
+\_newtoks\errata
+
+
 
 \_def\fnumbering{\_def\.pgnum##11{}\_def\_advancepageno{\_incr\_pageno}}
 \_let\.pgnum=\_empty
@@ -109,6 +112,7 @@
 
 \.mtdef {abstract}     {Abstract}          {Abstrakt}       {}
 \.mtdef {thanks}       {Acknowledgement}   {Poděkování}     {Poďakovanie} 
+\.mtdef {errata}       {Errata}            {Errata}         {Errata}
 \.mtdef {declaration}  {Declaration}       {Prohlášení}     {Prehlásenie} 
 \.mtdef {keywords}     {Keywords}          {Klíčová slova}  {Kľúčové slová}
 \.mtdef {trans}        {Title translation} {Překlad titulu} {Preklad titulu}
@@ -338,6 +342,40 @@
     \_insertoutline{\_mtext{declaration}}
     \_the\_ea\declaration\_space \_vfil\_break \_fi}
 \_addto\makefront{\.declpage}
+
+\_def\.erratapage{
+
+	\_newcount\.hours
+	\_newcount\.minutes
+	\.setminutes
+
+	\_insertoutline{\_mtext{errata}}
+	\_hrule height0pt \_vskip0pt plus 1filll
+	\_line{
+		\.bf\_thefontsize[19]
+		\_hss\Blue{\_mtext{errata}}\_hss
+	}
+	\_nobreak\_medskip
+	\_line{
+		\.sethsizethanks
+		\_vtop to\.frontht{
+			\_hrule width\_hsize height0pt
+			\_firstnoindent
+			Version of this text: {\sbf \_the\_year-0\_the\_month-\_the\_day\_space\_the\.hours:\_the\.minutes\_space CEST}
+			\_nobreak\_medskip
+			\_firstnoindent
+			\_the\errata
+			\_vfil
+		}
+	}
+}
+\_addto\makefront{%
+	\_footline={\_hss\.ssr\_thefontsize[11]%
+	\_ifx\.pgnum\_empty \_ea\_romannumeral\_ea-\_else \_ea\_the \_fi \_pageno\_hss\.drafttext}
+	\.erratapage \_vfil\_break
+}
+
+
 
 %%% Common front page
 
