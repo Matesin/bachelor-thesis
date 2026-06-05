@@ -305,7 +305,7 @@ uint16_t nfc_parse_and_respond(t4t_context_t *ctx,
 
 \secc[nfc-apdu-chaining] APDU Chaining
 
- CTAP2 short-APDU responses that exceed the NFC frame size are split across multiple APDUs using chaining (note that we are referring to APDU chaining, not ISO-DEP chaining which is done internally by RFAL), as requested by \cite[fido-ctap-documentation]. There are {\sbf two types of chaining} in the CTAP protocol (although they are not named in the CTAP specification) - chaining in the incoming direction (let us call this {\sbf in-chaining}) and in the outcoming direction ({\sbf out-chaining}). 
+ CTAP2 short-APDU responses that exceed the NFC frame size are split across multiple APDUs using chaining (note that we are referring to APDU chaining, not ISO-DEP chaining which is done internally by RFAL), as requested by \cite[fido-ctap-2.3-documentation]. There are {\sbf two types of chaining} in the CTAP protocol (although they are not named in the CTAP specification) - chaining in the incoming direction (let us call this {\sbf in-chaining}) and in the outcoming direction ({\sbf out-chaining}). 
 
 \nl The CTAP specification states that ``If the request was encoded using short APDU encoding, the authenticator MUST respond using ISO 7816-4 APDU chaining''. The in-chaining has its own CLA byte - 0x90, marking the first short APDU in the incoming chain, the subsequent APDU(s) come with a CLA byte of 0x80. Out-chaining, as mentioned, follows \cite[iso7816-4].
 
