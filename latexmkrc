@@ -1,2 +1,1 @@
-$lualatex = 'OPENTYPEFONTS=./fonts// optex %O %S';
-$pdflatex = 'OPENTYPEFONTS=./fonts// optex %O %S';
+$lualatex = 'TEXINPUTS=./optex//:$TEXINPUTS luatex -fmt=optex %O %S';
