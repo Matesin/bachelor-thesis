@@ -1,24 +1,26 @@
 
 # LionKey: NFC Extension
 
-Bachelor's thesis at CTU FEE focused on extending the LionKey FIDO2 security key with NFC functionality. Successfully defended (grade A). 
+Bachelor's thesis at [CTU FEE][FEL] focused on extending the [LionKey] FIDO2 security key with NFC functionality. Successfully defended (grade **A**). 
+
+> [!IMPORTANT]
+> The source code of the implementation is available at [Matesin/lionkey-nfc][Repo]
+
+> [!IMPORTANT]
+> The LionKey project was started by Ing. Martin Endler as a part of his master's thesis. To find out more, you can visit:
+> [pokusew/fel-masters-thesis][Endler Thesis]
+> [pokusew/lionkey][LionKey Repo]
 
 ## Abstract
 
-This repository contains the source files of the bachelor's thesis *LionKey – NFC Extension*. The thesis investigates the integration of Near Field Communication (NFC) into the LionKey hardware security key and describes the design, implementation, and evaluation of NFC support for FIDO2 authentication.
+The thesis investigates the integration of Near Field Communication (NFC) into the LionKey hardware security key and describes the design, implementation, and evaluation of NFC support for FIDO2 authentication.
 
 The work covers:
 
 - FIDO2 and passkeys (briefly)
 - NFC technology and protocols
-- CTAP over NFC
-- NDEF support
-- Implementation design
+- Implementation (HW & SW)
 - Testing and evaluation
-
-## Source Code
-
-The source code** of the implementation is available at [Matesin/lionkey-nfc][Repo]
 
 ## Repository Structure
 
@@ -40,11 +42,6 @@ The thesis extends LionKey with NFC functionality and demonstrates the feasibili
 - Integration into the existing LionKey architecture
 - Functional and interoperability testing
 
-## The LionKey project
-The LionKey project was started by Ing. Martin Endler as a part of his master's thesis. To find out more, you can visit:
-- [pokusew/fel-masters-thesis][Endler Thesis]
-- [pokusew/lionkey][LionKey Repo]
-
 ## Citation
 If you use or reference this work, please cite the corresponding bachelor's thesis.
 
@@ -62,3 +59,5 @@ If you use or reference this work, please cite the corresponding bachelor's thes
 [Repo]: https://github.com/Matesin/lionkey-nfc
 [LionKey Repo]: https://github.com/pokusew/lionkey
 [Endler Thesis]: https://github.com/pokusew/fel-masters-thesis
+[FEL]: https://fel.cvut.cz/en
+[LionKey]: https://lionkey.dev
